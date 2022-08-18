@@ -9,8 +9,7 @@ nus = 1:10 |> collect
 gammas = 0.1:0.1:1.0 |> collect
 etas = 0.1:0.1:1.0 |> collect
 
-rm("results/$(Dates.today())"; recursive=true)
-dir = mkpath("results/$(Dates.today())")
+dir = mkpath("results/2022-08-18")
 
 p = Progress(length(gammas) * length(etas) * length(rhos) * length(nus); showspeed=true)
 Threads.@threads for rho in rhos
@@ -30,6 +29,7 @@ Threads.@threads for rho in rhos
                     isfile("$dir/$filename--label_history.csv")
                 )
                     continue
+                    next!(p)
                 end
 
                 env, labels, label_history = run_waves_model(
@@ -43,9 +43,17 @@ Threads.@threads for rho in rhos
                 labels_df = DataFrame(; id=1:length(labels), label=labels)
                 label_history_df = DataFrame(label_history)
 
+                env = nothing
+                labels = nothing
+                label_history = nothing
+
                 CSV.write("$dir/$filename--history.csv", history_df)
                 CSV.write("$dir/$filename--labels.csv", labels_df)
                 CSV.write("$dir/$filename--label_history.csv", label_history_df)
+
+                history_df = nothing
+                labels_df = nothing
+                label_history_df = nothing
 
                 next!(p)
             end
