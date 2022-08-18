@@ -1,0 +1,13 @@
+.ipynb_checkpoints
+.venv
+poetry.lock
+
+results
+imgs
+imgs_*
+tree_data
+
+/*.txt
+/*.csv
+/*.png
+/*.jpg
