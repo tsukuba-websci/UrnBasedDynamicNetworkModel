@@ -1,17 +1,13 @@
 using DataFrames, CSV
 
 ##### parameters #####
-
-history_length = 20000
-targets = ["twitter", "aps"]
-analyzed_histories_file = "results/analyzed_histories.csv"
+analyzed_models_file = "results/analyzed_models.csv"
 outdir = "results/distances"
 
 ######################
 
 include("../Calc.jl")
-
-history_df2vec = df -> Tuple.(zip(df.src, df.dst))
+include("../Utils.jl")
 
 struct Distance
     rho::Int
@@ -27,8 +23,8 @@ function Distance(model::MeasuredValues, target::MeasuredValues)
 end
 
 function main()
-    if !isfile(analyzed_histories_file)
-        println("Cannot find $analyzed_histories_file.")
+    if !isfile(analyzed_models_file)
+        println("Cannot find $analyzed_models_file.")
         return nothing
     end
 
@@ -45,18 +41,21 @@ function main()
     rm(outdir; force=true, recursive=true)
     mkdir(outdir)
 
-    exec()
+    analyzed_target_paths = readdir("results/analyzed_targets")
+    targets = map(path -> replace(path, ".csv" => ""), analyzed_target_paths)
+    exec(targets)
 end
 
-function exec()
-    ahs = DataFrame(CSV.File(analyzed_histories_file))
+function exec(targets::Vector{String})
+    ahs = DataFrame(CSV.File(analyzed_models_file))
     mvs = map(ah -> MeasuredValues(ah...), eachrow(ahs))
 
     for target in targets
-        distances = Distance[]
-        history = history_df2vec(DataFrame(CSV.File("data/$target.csv")))[1:history_length]
-        target_mv = MeasuredValues(history)
+        target_mv = MeasuredValues(
+            DataFrame(CSV.File("results/analyzed_targets/$target.csv"))[1, :]...
+        )
 
+        distances = Distance[]
         for mv in mvs
             push!(distances, Distance(mv, target_mv))
         end

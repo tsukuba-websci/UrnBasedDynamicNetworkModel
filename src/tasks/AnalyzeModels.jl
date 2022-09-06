@@ -5,7 +5,7 @@ include("../Utils.jl")
 include("../AROB_Models.jl")
 include("../Calc.jl")
 
-outfile = "results/analyzed_histories.csv"
+outfile = "results/analyzed_models.csv"
 
 function params2str(p::ModelParams)
     return params2str(p.rho, p.nu, p.zeta, p.eta)
