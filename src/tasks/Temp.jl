@@ -6,7 +6,7 @@ d = ds[1, :]
 
 _theta = ["γ", "c", "oc", "oo", "nc", "no", "y", "r", "<h>", "g"]
 _td = [tgamma, tc, toc, too, tnc, tno, ty, tr, th, tg]
-_d = [gamma, c, oc, oo, nc, no, y, r, h, g]
+_d = [d.gamma, d.c, d.oc, d.oo, d.nc, d.no, d.y, d.r, d.h, d.g]
 
 pltdata = [
     scatterpolar(;
