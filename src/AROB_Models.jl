@@ -96,3 +96,35 @@ function run_waves_model(
 
     return env, labels, label_tree
 end
+
+function run_normal_model(
+    rho::Int, nu::Int; steps=200000
+)::Tuple{Environment,Vector{Int},Vector{LabelHistoryRecord}}
+    last_label = 3
+    labels = Int[[1, 1]; ones(Int, nu + 1) .* 2; ones(Int, nu + 1) .* 3]
+    label_tree = LabelHistoryRecord[]
+
+    unique_history = Vector{Int}()
+
+    env = Environment()
+    init_agents = [
+        Agent(rho, nu, ssw_strategy!)
+        Agent(rho, nu, ssw_strategy!)
+    ]
+    init!(env, init_agents)
+
+    for step in 1:steps
+        step!(env)
+
+        caller, callee = env.history[end]
+        if !(callee in unique_history)
+            append!(labels, ones(nu + 1) * (last_label + 1))
+            push!(label_tree, LabelHistoryRecord(step, labels[callee], last_label + 1))
+
+            last_label = last_label + 1
+        end
+        push!(unique_history, caller, callee)
+    end
+
+    return env, labels, label_tree
+end

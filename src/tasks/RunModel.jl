@@ -1,62 +1,81 @@
 using DataFrames, CSV
 using ProgressMeter
 using Dates
+using ArgParse
 
 include("../AROB_Models.jl")
 
-rhos = 1:10 |> collect
-nus = 1:10 |> collect
-gammas = 0.1:0.1:1.0 |> collect
-etas = 0.1:0.1:1.0 |> collect
+function exec()
+    outdir = "results/generated_histories"
 
-dir = mkpath("results/2022-08-18")
+    if isdir(outdir)
+        ans = Base.prompt(
+            "The generated histories have found. Do you want to overwrite? (y/N)";
+            default="N",
+        )
+        if (ans != "y")
+            println("Aborted.")
+            return nothing
+        end
+    end
 
-p = Progress(length(gammas) * length(etas) * length(rhos) * length(nus); showspeed=true)
-Threads.@threads for rho in rhos
-    Threads.@threads for nu in nus
-        for gamma in gammas
-            for eta in etas
-                rhostr = string(rho)
-                nustr = string(nu)
-                gammastr = replace(string(gamma), "." => "")
-                etastr = replace(string(eta), "." => "")
+    rm(outdir; recursive=true, force=true)
+    mkpath(outdir)
 
-                filename = "rho$(rhostr)_nu$(nustr)_gamma$(gammastr)_eta$(etastr)"
+    rhos = 1:10 |> collect
+    nus = 1:10 |> collect
+    gammas = 0.1:0.1:1.0 |> collect
+    etas = 0.1:0.1:1.0 |> collect
 
-                if (
-                    isfile("$dir/$filename--history.csv") &&
-                    isfile("$dir/$filename--labels.csv") &&
-                    isfile("$dir/$filename--label_history.csv")
-                )
-                    continue
+    p = Progress(length(gammas) * length(etas) * length(rhos) * length(nus); showspeed=true)
+    Threads.@threads for rho in rhos
+        Threads.@threads for nu in nus
+            for gamma in gammas
+                for eta in etas
+                    rhostr = string(rho)
+                    nustr = string(nu)
+                    gammastr = replace(string(gamma), "." => "")
+                    etastr = replace(string(eta), "." => "")
+
+                    filename = "rho$(rhostr)_nu$(nustr)_gamma$(gammastr)_eta$(etastr)"
+
+                    if (
+                        isfile("$outdir/$filename--history.csv") &&
+                        isfile("$outdir/$filename--labels.csv") &&
+                        isfile("$outdir/$filename--label_history.csv")
+                    )
+                        next!(p)
+                        continue
+                    end
+
+                    env, labels, label_history = run_waves_model(
+                        rho, nu, gamma, eta; steps=20000
+                    )
+                    history_df = DataFrame(;
+                        step=1:length(env.history),
+                        src=first.(env.history),
+                        dst=last.(env.history),
+                    )
+                    labels_df = DataFrame(; id=1:length(labels), label=labels)
+                    label_history_df = DataFrame(label_history)
+
+                    env = nothing
+                    labels = nothing
+                    label_history = nothing
+
+                    CSV.write("$outdir/$filename--history.csv", history_df)
+                    CSV.write("$outdir/$filename--labels.csv", labels_df)
+                    CSV.write("$outdir/$filename--label_history.csv", label_history_df)
+
+                    history_df = nothing
+                    labels_df = nothing
+                    label_history_df = nothing
+
                     next!(p)
                 end
-
-                env, labels, label_history = run_waves_model(
-                    rho, nu, gamma, eta; steps=20000
-                )
-                history_df = DataFrame(;
-                    step=1:length(env.history),
-                    src=first.(env.history),
-                    dst=last.(env.history),
-                )
-                labels_df = DataFrame(; id=1:length(labels), label=labels)
-                label_history_df = DataFrame(label_history)
-
-                env = nothing
-                labels = nothing
-                label_history = nothing
-
-                CSV.write("$dir/$filename--history.csv", history_df)
-                CSV.write("$dir/$filename--labels.csv", labels_df)
-                CSV.write("$dir/$filename--label_history.csv", label_history_df)
-
-                history_df = nothing
-                labels_df = nothing
-                label_history_df = nothing
-
-                next!(p)
             end
         end
     end
 end
+
+exec()

@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 from typing import Any, Dict
@@ -51,6 +50,8 @@ def make_graph_attr1(
             "radius2": radius2,
             "theta": theta,
             "arc": arc,
+            "show": row["show"],
+            "emp": False,
         }
         return theta
 
@@ -152,37 +153,40 @@ def plot_tree(ax: plt.Axes, attrs: Dict[str, Any]):
     arc_patches = []
     scatter_attrs = {"x": [], "y": [], "s": [], "c": []}
     for key, attr in attrs.items():
+        show = attr["show"]
+        emp = attr["emp"]
 
-        theta = attr["theta"]
-        radius = np.array([attr["radius1"], attr["radius2"]])
-        x = np.cos(theta) * radius
-        y = np.sin(theta) * radius
+        if show:
+            theta = attr["theta"]
+            radius = np.array([attr["radius1"], attr["radius2"]])
+            x = np.cos(theta) * radius
+            y = np.sin(theta) * radius
 
-        ax.plot(
-            x,
-            y,
-            color="w",
-            lw=line_width,
-        )
-
-        if attr["arc"]:
-            diameter = attr["radius2"] * 2
-            arc_patches.append(
-                patches.Arc(
-                    xy=(0, 0),
-                    width=diameter,
-                    height=diameter,
-                    theta1=attr["arc"][0],
-                    theta2=attr["arc"][1],
-                    lw=line_width,
-                    color="w",
-                )
+            ax.plot(
+                x,
+                y,
+                color="r" if emp else "w",
+                lw=line_width * 2 if emp else line_width,
             )
 
-        scatter_attrs["x"].append(x[1])
-        scatter_attrs["y"].append(y[1])
-        scatter_attrs["c"].append("w")
-        scatter_attrs["s"].append(scatter_size)
+            if attr["arc"]:
+                diameter = attr["radius2"] * 2
+                arc_patches.append(
+                    patches.Arc(
+                        xy=(0, 0),
+                        width=diameter,
+                        height=diameter,
+                        theta1=attr["arc"][0],
+                        theta2=attr["arc"][1],
+                        lw=line_width,
+                        color="w",
+                    )
+                )
+
+            scatter_attrs["x"].append(x[1])
+            scatter_attrs["y"].append(y[1])
+            scatter_attrs["c"].append("r" if emp else "w")
+            scatter_attrs["s"].append(scatter_size * 20 if emp else scatter_size)
 
     for arc in arc_patches:
         ax.add_patch(arc)
@@ -195,11 +199,25 @@ def plot_tree(ax: plt.Axes, attrs: Dict[str, Any]):
     )
 
 
-def main(label_tree_path: str, filename: str, first_n: int = None):
+def main():
 
-    label_tree = pd.read_csv(label_tree_path)
-    if first_n != None:
-        label_tree = label_tree[:first_n]
+    labels = pd.read_csv("tree_data/labels.csv")
+    history = pd.read_csv("tree_data/history.csv")
+    label_tree = pd.read_csv("tree_data/label_tree.csv")
+    history["step"] = history.index
+    history_with_labels = (
+        history.merge(labels, how="left", left_on="src", right_on="id")
+        .rename(columns={"label": "label_src"})
+        .drop(columns=["id"])
+        .merge(
+            labels,
+            how="left",
+            left_on="dst",
+            right_on="id",
+        )
+        .drop(columns=["id"])
+        .rename(columns={"label": "label_dst"})
+    )
 
     label_tree = label_tree.fillna(-1)
     label_tree = label_tree.astype(int)
@@ -217,51 +235,45 @@ def main(label_tree_path: str, filename: str, first_n: int = None):
     radius_max: int = label_tree[COLUMNS["birth"]].max()
     radius_min_ratio = 0.05  # ルートノードのradius
 
-    attrs, _ = make_graph_attr1(label_tree, radius_max, radius_min_ratio)
+    for step in range(radius_max):
 
-    fig, ax = plt.subplots(
-        figsize=(10, 10),
-        facecolor="k",
-    )
+        # その関係性を描画するか否か
+        label_tree["show"] = False
+        label_tree.loc[label_tree[COLUMNS["birth"]] < step, "show"] = True
 
-    plot_tree(ax, attrs)
+        # 強調するノードの指定
+        label_src, label_dst = history_with_labels.iloc[step][
+            ["label_src", "label_dst"]
+        ]
 
-    ax.axis("off")
-    os.makedirs("imgs/graphs", exist_ok=True)
-    plt.savefig(f"imgs/graphs/{filename}.png")
-    plt.savefig(f"imgs/graphs/{filename}.pdf")
-    plt.close(fig)
+        attrs, grids = make_graph_attr1(label_tree, radius_max, radius_min_ratio)
+        # attrs, grids = make_graph_attr2(df, radius_max, radius_min_ratio)
+
+        fig, ax = plt.subplots(
+            figsize=(10, 10),
+            facecolor="k",
+        )
+        ax.annotate(
+            f"step={step:05}",
+            (0, 0),
+            textcoords="figure fraction",
+            xytext=(0.775, 0.02),
+            fontsize=25,
+            c="w",
+        )
+
+        attrs[label_src]["emp"] = True
+        attrs[label_dst]["emp"] = True
+
+        # plot_grid(ax, grids)
+        plot_tree(ax, attrs)
+
+        ax.axis("off")
+        os.makedirs("imgs", exist_ok=True)
+        plt.savefig(f"imgs/{step:05}.png")
+        plt.close(fig)
+        # plt.show()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--input",
-        "-i",
-        required=True,
-        type=str,
-        metavar="input_path",
-    )
-    parser.add_argument(
-        "--output",
-        "-o",
-        required=True,
-        type=str,
-        metavar="output_path",
-    )
-    parser.add_argument(
-        "--first_n",
-        "-n",
-        required=False,
-        type=int,
-        metavar="N",
-    )
-
-    args = parser.parse_args()
-
-    main(
-        label_tree_path=args.input,
-        filename=args.output,
-        first_n=args.first_n,
-    )
+    main()
