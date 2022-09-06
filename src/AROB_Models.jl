@@ -9,6 +9,13 @@ struct LabelHistoryRecord
     dst::Int
 end
 
+struct ModelParams
+    rho::Int
+    nu::Int
+    zeta::Float64
+    eta::Float64
+end
+
 """
 waves of novelties モデル
 """
