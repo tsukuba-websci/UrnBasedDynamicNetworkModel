@@ -19,6 +19,8 @@ struct MeasuredValues
     g::Float64
 end
 
+MeasuredValuesDiff = MeasuredValues
+
 function MeasuredValues(
     history::Vector{Tuple{Int,Int}}, mp::ModelParams=ModelParams(0, 0, 0, 0)
 )::MeasuredValues
@@ -36,19 +38,37 @@ function MeasuredValues(
 end
 
 import Base.:-
-function Base.:-(a::MeasuredValues, b::MeasuredValues)::Float64
+function Base.:-(a::MeasuredValues, b::MeasuredValues)::MeasuredValuesDiff
+    return MeasuredValuesDiff(
+        0,
+        0,
+        0,
+        0,
+        a.gamma - b.gamma,
+        a.c - b.c,
+        a.oc - b.oc,
+        a.oo - b.oo,
+        a.nc - b.nc,
+        a.no - b.no,
+        a.y - b.y,
+        a.r - b.r,
+        a.h - b.h,
+        a.g - b.g,
+    )
+end
+
+import Base.abs
+function Base.abs(mv::MeasuredValuesDiff)
     return [
-               a.gamma - b.gamma
-               a.c - b.c
-               a.oc - b.oc
-               a.oo - b.oo
-               a.nc - b.nc
-               a.no - b.no
-               a.y - b.y
-               a.r - b.r
-               a.h - b.h
-               a.g - b.g
-           ] .|>
-           abs |>
-           sum
+        mv.gamma
+        mv.c
+        mv.oc
+        mv.oo
+        mv.nc
+        mv.no
+        mv.y
+        mv.r
+        mv.h
+        mv.g
+    ] .|> abs
 end
