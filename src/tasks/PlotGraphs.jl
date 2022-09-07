@@ -36,9 +36,13 @@ function plot_polar(mvs::Vector{MeasuredValues}, labels::Vector{String})
     return plot(pltdata, layout)
 end
 
-function export_target_polar(target::String)
-    target_distances = DataFrame(CSV.File("results/distances/$target.csv"))
-    analyzed_models = DataFrame(CSV.File("results/analyzed_models.csv"))
+function export_target_polar(target::String; base::Bool=false)
+    target_distances = DataFrame(
+        CSV.File("results/distances$(base ? "--base" : "")/$target.csv")
+    )
+    analyzed_models = DataFrame(
+        CSV.File("results/analyzed_models$(base ? "--base" : "").csv")
+    )
 
     df = leftjoin(target_distances, analyzed_models; on=[:rho, :nu, :zeta, :eta])
     sort!(df, target)
@@ -50,16 +54,18 @@ function export_target_polar(target::String)
     )
 
     plt = plot_polar([best_fit_mv, target_mv], ["Model (best fit)", "target"])
-    savefig(plt, "$outdir/polar--$(target).png"; scale=2)
+    savefig(plt, "$outdir/polar--$(target)$(base ? "--base" : "").png"; scale=2)
     return plt
 end
 
-function export_best_fit_model_triangle(target::String)
-    target_distances = DataFrame(CSV.File("results/distances/$target.csv"))
+function export_best_fit_model_triangle(target::String; base::Bool=false)
+    target_distances = DataFrame(
+        CSV.File("results/distances$(base ? "--base" : "")/$target.csv")
+    )
     sort!(target_distances, target)
 
     (rho, nu, zeta, eta) = target_distances[1, [:rho, :nu, :zeta, :eta]]
-    filepath = "results/generated_histories/$(params2str(rho, nu, zeta, eta))--history.csv"
+    filepath = "results/generated_histories$(base ? "--base" : "")/$(params2str(rho, nu, zeta, eta))--history.csv"
     history = history_df2vec(DataFrame(CSV.File(filepath)))
 
     plt = plot_rich_get_richer_triangle(history, length(history) ÷ 100)
@@ -70,7 +76,11 @@ function export_best_fit_model_triangle(target::String)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    savefig(plt, "$outdir/triangle--best_fit_model_for_$(target).png"; scale=2)
+    savefig(
+        plt,
+        "$outdir/triangle--best_fit_model_for_$(target)$(base ? "--base" : "").png";
+        scale=2,
+    )
     return plt
 end
 
@@ -89,12 +99,14 @@ function export_target_triangle(target::String)
     return plt
 end
 
-function export_best_fit_model_scatter(target::String)
-    target_distances = DataFrame(CSV.File("results/distances/$target.csv"))
+function export_best_fit_model_scatter(target::String; base::Bool=false)
+    target_distances = DataFrame(
+        CSV.File("results/distances$(base ? "--base" : "")/$target.csv")
+    )
     sort!(target_distances, target)
 
     (rho, nu, zeta, eta) = target_distances[1, [:rho, :nu, :zeta, :eta]]
-    filepath = "results/generated_histories/$(params2str(rho, nu, zeta, eta))--history.csv"
+    filepath = "results/generated_histories$(base ? "--base" : "")/$(params2str(rho, nu, zeta, eta))--history.csv"
     history = history_df2vec(DataFrame(CSV.File(filepath)))
 
     plt = plot_time_access_scatter(history)
@@ -105,7 +117,11 @@ function export_best_fit_model_scatter(target::String)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    savefig(plt, "$outdir/scatter--best_fit_model_for_$(target).png"; scale=2)
+    savefig(
+        plt,
+        "$outdir/scatter--best_fit_model_for_$(target)$(base ? "--base" : "").png";
+        scale=2,
+    )
     return plt
 end
 
@@ -132,13 +148,20 @@ function exec()
     export_target_polar("twitter")
     export_target_polar("aps")
 
+    export_target_polar("twitter"; base=true)
+    export_target_polar("aps"; base=true)
+
     export_best_fit_model_triangle("twitter")
     export_best_fit_model_triangle("aps")
+    export_best_fit_model_triangle("twitter"; base=true)
+    export_best_fit_model_triangle("aps"; base=true)
     export_target_triangle("twitter")
     export_target_triangle("aps")
 
     export_best_fit_model_scatter("twitter")
     export_best_fit_model_scatter("aps")
+    export_best_fit_model_scatter("twitter"; base=true)
+    export_best_fit_model_scatter("aps"; base=true)
     export_target_scatter("twitter")
     export_target_scatter("aps")
 end
