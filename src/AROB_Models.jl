@@ -12,8 +12,8 @@ end
 struct ModelParams
     rho::Int
     nu::Int
-    zeta::Float64
-    eta::Float64
+    zeta::Number
+    eta::Number
 end
 
 """

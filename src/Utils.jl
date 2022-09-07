@@ -1,9 +1,9 @@
 
-function tostring(f::Float64)
+function tostring(f::Number)
     return replace(string(f), "." => "")
 end
 
-function params2str(rho::Int, nu::Int, zeta::Float64, eta::Float64)
+function params2str(rho::Int, nu::Int, zeta::Number, eta::Number)
     return "rho$(rho)_nu$(nu)_gamma$(tostring(zeta))_eta$(tostring(eta))"
 end
 

@@ -28,10 +28,11 @@ julia --proj --threads=auto src/tasks/RunBaseModel.jl
 - 事前に [モデルを走らせて相互作用の履歴データを生成する](#モデルを走らせて相互作用の履歴データを生成する) を実行しておく必要がある
 
 ```sh
-julia --proj --threads=auto src/tasks/AnalyzeModels.jl
+# --base を付けるとベースモデルの分析になる
+julia --proj --threads=auto src/tasks/AnalyzeModels.jl [--base]
 ```
 
-- `results/analyzed_models.csv` に結果が保存される
+- `results/analyzed_models.csv` または `results/analyzed_models--base.csv` に結果が保存される
 
 ```CSV
 rho,nu,zeta,eta,gamma,c,oc,oo,nc,no,y,r,h,g
