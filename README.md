@@ -42,7 +42,7 @@ rho,nu,zeta,eta,gamma,c,oc,oo,nc,no,y,r,h,g
 ### ターゲットデータを分析して各種計測値を出す
 
 ```sh
-julia --proj src/tasks/CalcDiffs.jl
+julia --proj src/tasks/AnalyzeTargets.jl
 ```
 
 - `results/analyzed_targets` に結果データが格納される
