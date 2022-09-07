@@ -17,6 +17,13 @@ julia --proj --threads=auto src/tasks/RunModel.jl
 
 - `results/generated_histories` に生成されたデータが格納される
 
+### ベースモデルを走らせて相互作用の履歴データを生成する
+```
+julia --proj --threads=auto src/tasks/RunBaseModel.jl
+```
+
+- `results/generated_histories--base` に生成されたデータが格納される
+
 ### 相互作用の履歴データを分析して各種計測値を出す
 - 事前に [モデルを走らせて相互作用の履歴データを生成する](#モデルを走らせて相互作用の履歴データを生成する) を実行しておく必要がある
 
