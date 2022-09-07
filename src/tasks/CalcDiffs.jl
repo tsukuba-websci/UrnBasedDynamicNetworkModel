@@ -1,8 +1,7 @@
 using DataFrames, CSV
+using ArgParse
 
 ##### parameters #####
-analyzed_models_file = "results/analyzed_models.csv"
-outdir = "results/distances"
 
 ######################
 
@@ -22,7 +21,29 @@ function Distance(model::MeasuredValues, target::MeasuredValues)
     return Distance(model.rho, model.nu, model.zeta, model.eta, distance)
 end
 
+analyzed_models_file = ""
+outdir = ""
+
 function main()
+    s = ArgParseSettings()
+
+    @add_arg_table s begin
+        "--base"
+        help = "Calculate diffs between base model"
+        action = :store_true
+    end
+
+    args = parse_args(s)
+    isbase = args["base"]
+
+    if isbase
+        global outdir = "results/distances--base"
+        global analyzed_models_file = "results/analyzed_models--base.csv"
+    else
+        global outdir = "results/distances"
+        global analyzed_models_file = "results/analyzed_models.csv"
+    end
+
     if !isfile(analyzed_models_file)
         println("Cannot find $analyzed_models_file.")
         return nothing

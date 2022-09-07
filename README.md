@@ -57,10 +57,11 @@ rho,nu,zeta,eta,gamma,c,oc,oo,nc,no,y,r,h,g
 - 事前に [ターゲットデータを分析して各種計測値を出す](#ターゲットデータを分析して各種計測値を出す) を実行しておく必要がある
 
 ```sh
-julia --proj src/tasks/CalcDiffs.jl
+# --base を付けるとベースモデルの分析になる
+julia --proj src/tasks/CalcDiffs.jl [--base]
 ```
 
-- `results/distances` に結果が格納される
+- `results/distances` または `results/distances--base` に結果が格納される
 
 ```CSV
 rho,nu,zeta,eta,aps
