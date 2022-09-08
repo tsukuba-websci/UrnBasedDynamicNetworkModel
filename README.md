@@ -78,3 +78,26 @@ julia --proj src/tasks/CalcDiffs.jl [--base]
 rho,nu,zeta,eta,aps
 8,10,0.1,0.5,0.3017873533979937
 ```
+
+
+### クラス分類の変化を分析する
+
+```sh
+julia --proj src/tasks/AnalyzeClassification.jl
+```
+
+- `results/analyzed_classification` に結果が格納される
+
+
+### クラス分類の結果をプロットする
+- [クラス分類の変化を分析する](#クラス分類の変化を分析する) を実行しておく必要がある
+
+```sh
+julia --proj src/tasks/PlotAnalyzedClassification.jl
+```
+## 未整理コマンド
+### クラス分類の割合推移をグラフ化する
+
+```sh
+julia --proj src/tasks/PlotClassificationRatio.jl
+```
