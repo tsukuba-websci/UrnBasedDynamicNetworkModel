@@ -2,7 +2,7 @@
 
 julia_version = "1.8.0"
 manifest_format = "2.0"
-project_hash = "7bbe585290c7e8a4f194fdd846cc3393148136cc"
+project_hash = "d94077268ed135f187ce9f2b235a44403c4e9ca3"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "5c0b629df8a5566a06f5fef5100b53ea56e465a0"
@@ -326,6 +326,18 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "3c837543ddb02250ef42f4738347454f95079d4e"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.3"
+
+[[deps.JSON3]]
+deps = ["Dates", "Mmap", "Parsers", "StructTypes", "UUIDs"]
+git-tree-sha1 = "fd6f0cae36f42525567108a42c1c674af2ac620d"
+uuid = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+version = "1.9.5"
+
+[[deps.JSONTables]]
+deps = ["JSON3", "StructTypes", "Tables"]
+git-tree-sha1 = "13f7485bb0b4438bb5e83e62fcadc65c5de1d1bb"
+uuid = "b9914132-a727-11e9-1322-f18e41205b0b"
+version = "1.0.3"
 
 [[deps.Kaleido_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -660,6 +672,12 @@ deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Printf", "REPL", "Shifted
 git-tree-sha1 = "f8ba54b202c77622a713e25e7616d618308b34d3"
 uuid = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
 version = "0.6.31"
+
+[[deps.StructTypes]]
+deps = ["Dates", "UUIDs"]
+git-tree-sha1 = "ca4bccb03acf9faaf4137a9abc1881ed1841aa70"
+uuid = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
+version = "1.10.0"
 
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]

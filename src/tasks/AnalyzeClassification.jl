@@ -1,4 +1,4 @@
-using DataFrames, CSV
+using DataFrames, CSV, JSONTables
 using PlotlyJS
 using StatsBase
 
@@ -86,6 +86,10 @@ function exec(target::String)
     CSV.write("$outdir/class_weight--$(target).csv", cws_df)
     CSV.write("$outdir/class_size--$(target).csv", css_df)
     CSV.write("$outdir/class_probability--$(target).csv", cps_df)
+
+    open("$outdir/classification--$(target).json", "w") do file
+        write(file, arraytable(DataFrame(cs)))
+    end
 end
 
 main()
