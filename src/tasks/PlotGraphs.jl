@@ -140,6 +140,22 @@ function export_target_scatter(target::String)
     return plt
 end
 
+function export_distances(target::String)
+    proposed = DataFrame(CSV.File("results/distances/$target.csv"))[1, target]
+    base = DataFrame(CSV.File("results/distances--base/$target.csv"))[1, target]
+    df = DataFrame(; x=["existing model", "proposed model"], y=[base, proposed])
+    layout = Layout(;
+        template=templates[:simple_white],
+        xaxis_title="",
+        yaxis_title="d",
+        yaxis_range=[0, 2],
+        font_family="Times New Roman",
+        font_size=20,
+    )
+    plt = plot(df, layout; x=:x, y=:y, kind=:bar)
+    savefig(plt, "$outdir/distnace--$target.png"; scale=2)
+end
+
 function main()
     exec()
 end
@@ -164,6 +180,9 @@ function exec()
     export_best_fit_model_scatter("aps"; base=true)
     export_target_scatter("twitter")
     export_target_scatter("aps")
+
+    export_distances("twitter")
+    export_distances("aps")
 end
 
 main()
