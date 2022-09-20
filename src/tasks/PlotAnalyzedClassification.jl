@@ -6,6 +6,7 @@ using ProgressMeter
 
 ##### parameters #####
 inputdir = "results/analyzed_classification"
+outdir = "results/imgs/classification"
 targets = ["twitter", "aps"]
 ######################
 
@@ -167,42 +168,43 @@ function main()
         return nothing
     end
 
+    rm(outdir; recursive=true, force=true)
+    mkpath(outdir)
+
     exec()
 end
 
 function exec()
     for target in targets
         plt = plot_class_probability(target)
-        savefig(plt, "results/imgs/class_probability--$target.png"; scale=2)
+        savefig(plt, "$outdir/class_probability--$target.png"; scale=2)
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "results/imgs/class_probability--$target--zoomed.png"; scale=2)
+        savefig(plt_zoomed, "$outdir/class_probability--$target--zoomed.png"; scale=2)
     end
 
     for target in targets
         plt = plot_class_weight(target)
-        savefig(plt, "results/imgs/class_weight--$target.png"; scale=2)
+        savefig(plt, "$outdir/class_weight--$target.png"; scale=2)
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "results/imgs/class_weight--$target--zoomed.png"; scale=2)
+        savefig(plt_zoomed, "$outdir/class_weight--$target--zoomed.png"; scale=2)
     end
 
     for target in targets
         plt = plot_class_size(target)
-        savefig(plt, "results/imgs/class_size--$target.png"; scale=2)
+        savefig(plt, "$outdir/class_size--$target.png"; scale=2)
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "results/imgs/class_size--$target--zoomed.png"; scale=2)
+        savefig(plt_zoomed, "$outdir/class_size--$target--zoomed.png"; scale=2)
     end
 
     for target in targets
         plt = plot_classification_ratio(target)
-        savefig(plt, "results/imgs/classification_ratio--$target.png"; scale=2)
+        savefig(plt, "$outdir/classification_ratio--$target.png"; scale=2)
 
         plt_zoomed = zoom_in(plt)
-        savefig(
-            plt_zoomed, "results/imgs/classification_ratio--$target--zoomed.png"; scale=2
-        )
+        savefig(plt_zoomed, "$outdir/classification_ratio--$target--zoomed.png"; scale=2)
     end
 
     for target in targets
