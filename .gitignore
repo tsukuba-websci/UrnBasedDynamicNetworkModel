@@ -3,6 +3,7 @@
 poetry.lock
 
 results
+results_*
 imgs
 imgs_*
 tree_data
