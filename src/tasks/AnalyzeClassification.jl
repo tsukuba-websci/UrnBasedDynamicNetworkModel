@@ -7,7 +7,7 @@ include("../Classification.jl")
 
 ###### parameters #####
 outdir = "results/analyzed_classification"
-targets = ["twitter", "aps"]
+targets = ["twitter", "aps", "min_r"]
 #######################
 
 function main()

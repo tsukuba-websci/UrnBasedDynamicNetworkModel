@@ -7,7 +7,7 @@ using ProgressMeter
 ##### parameters #####
 inputdir = "results/analyzed_classification"
 outdir = "results/imgs/classification"
-targets = ["twitter", "aps"]
+targets = ["twitter", "aps", "min_r"]
 ######################
 
 function plot_class_probability(target::String)
@@ -207,9 +207,9 @@ function exec()
         savefig(plt_zoomed, "$outdir/classification_ratio--$target--zoomed.png"; scale=2)
     end
 
-    for target in targets
-        export_class_transition(target)
-    end
+    # for target in targets
+    #     export_class_transition(target)
+    # end
 end
 
 main()

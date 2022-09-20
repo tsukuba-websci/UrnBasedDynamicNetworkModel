@@ -86,6 +86,11 @@ function exec(targets::Vector{String})
         rename!(distances_df, :distance => target)
         CSV.write("$outdir/$target.csv", distances_df)
     end
+
+    # Rを最も小さくするパラメータも出す
+    analyzed_models = DataFrame(CSV.File("results/analyzed_models.csv"))
+    min_r_params = (; sort(analyzed_models, :r)[1, [:rho, :nu, :zeta, :eta]]..., min_r=0)
+    CSV.write("$outdir/min_r.csv", DataFrame(; min_r_params...))
 end
 
 main()
