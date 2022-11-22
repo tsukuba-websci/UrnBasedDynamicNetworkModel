@@ -4,6 +4,7 @@ using DynamicNetworkMeasuringTools
 
 include("../Calc.jl")
 include("../Utils.jl")
+include("../PlotUtils.jl")
 
 outdir = "results/imgs"
 
@@ -13,18 +14,34 @@ target_history_length = 20000
 
 mkpath(outdir)
 
-function plot_polar(mvs::Vector{MeasuredValues}, labels::Vector{String})
-    _theta = ["γ", "c", "oc", "oo", "nc", "no", "y", "r", "<h>", "g"]
+function plot_polar(mvs::Vector{MeasuredValues}, labels::Vector{String}; colored=true)
+    _theta = ["γ", "C", "OC", "OO", "NC", "NO", "Y", "R", "<h>", "G"]
+
+    dash = ["solid", "dash"]
 
     pltdata = AbstractTrace[]
+    idx = 1
     for (mv, label) in zip(mvs, labels)
         d = [mv.gamma, mv.c, mv.oc, mv.oo, mv.nc, mv.no, mv.y, mv.r, mv.h, mv.g]
-        push!(
-            pltdata,
-            scatterpolar(;
-                r=[d...; d[1]], theta=[_theta...; _theta[1]], name=label, color=:G10
-            );
-        )
+        if colored
+            push!(
+                pltdata,
+                scatterpolar(;
+                    r=[d...; d[1]], theta=[_theta...; _theta[1]], name=label, color=:G10
+                );
+            )
+        else
+            push!(
+                pltdata,
+                scatterpolar(;
+                    r=[d...; d[1]],
+                    theta=[_theta...; _theta[1]],
+                    name=label,
+                    line=attr(; dash=dash[idx], color=:black),
+                );
+            )
+        end
+        idx += 1
     end
 
     layout = Layout(;
@@ -36,7 +53,7 @@ function plot_polar(mvs::Vector{MeasuredValues}, labels::Vector{String})
     return plot(pltdata, layout)
 end
 
-function export_target_polar(target::String; base::Bool=false)
+function export_target_polar(target::String; base::Bool=false, colored=true)
     target_distances = DataFrame(
         CSV.File("results/distances$(base ? "--base" : "")/$target.csv")
     )
@@ -53,8 +70,12 @@ function export_target_polar(target::String; base::Bool=false)
         DataFrame(CSV.File("results/analyzed_targets/$target.csv"))[1, :]...
     )
 
-    plt = plot_polar([best_fit_mv, target_mv], ["Model (best fit)", "target"])
-    savefig(plt, "$outdir/polar--$(target)$(base ? "--base" : "").png"; scale=2)
+    plt = plot_polar([best_fit_mv, target_mv], ["Model (best fit)", "target"]; colored)
+    mysavefig(
+        plt,
+        outdir,
+        "/polar--$(target)$(base ? "--base" : "")$(colored ? "" : "--monochrome")",
+    )
     return plt
 end
 
@@ -76,11 +97,7 @@ function export_best_fit_model_triangle(target::String; base::Bool=false)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    savefig(
-        plt,
-        "$outdir/triangle--best_fit_model_for_$(target)$(base ? "--base" : "").png";
-        scale=2,
-    )
+    mysavefig(plt, outdir, "triangle--best_fit_model_for_$(target)$(base ? "--base" : "")")
     return plt
 end
 
@@ -95,7 +112,7 @@ function export_target_triangle(target::String)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    savefig(plt, "$outdir/triangle--target_$(target).png"; scale=2)
+    mysavefig(plt, outdir, "triangle--target_$(target)")
     return plt
 end
 
@@ -117,11 +134,7 @@ function export_best_fit_model_scatter(target::String; base::Bool=false)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    savefig(
-        plt,
-        "$outdir/scatter--best_fit_model_for_$(target)$(base ? "--base" : "").png";
-        scale=2,
-    )
+    mysavefig(plt, outdir, "scatter--best_fit_model_for_$(target)$(base ? "--base" : "")")
     return plt
 end
 
@@ -136,24 +149,41 @@ function export_target_scatter(target::String)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    savefig(plt, "$outdir/scatter--target_$(target).png"; scale=2)
+    mysavefig(plt, outdir, "scatter--target_$(target)")
     return plt
 end
 
-function export_distances(target::String)
-    proposed = DataFrame(CSV.File("results/distances/$target.csv"))[1, target]
-    base = DataFrame(CSV.File("results/distances--base/$target.csv"))[1, target]
-    df = DataFrame(; x=["existing model", "proposed model"], y=[base, proposed])
+function export_distances(targets::Vector{String})
+    namedict = Dict([
+        "aps" => "APS Co-authors Network", "twitter" => "Twitter Mentions Network"
+    ])
+
+    pltdata::Vector{GenericTrace} = []
+    for target in targets
+        proposed = DataFrame(CSV.File("results/distances/$target.csv"))[1, target]
+        base = DataFrame(CSV.File("results/distances--base/$target.csv"))[1, target]
+
+        push!(
+            pltdata,
+            bar(;
+                name=namedict[target],
+                x=["existing model", "proposed model"],
+                y=[base, proposed],
+            ),
+        )
+    end
+
     layout = Layout(;
         template=templates[:simple_white],
         xaxis_title="",
-        yaxis_title="d",
-        yaxis_range=[0, 2],
+        yaxis_title="Distance between the empirical",
+        yaxis_range=[0, 1.4],
         font_family="Times New Roman",
         font_size=20,
+        legend=attr(; x=1, y=1, xanchor="right"),
     )
-    plt = plot(df, layout; x=:x, y=:y, kind=:bar)
-    savefig(plt, "$outdir/distnace--$target.png"; scale=2)
+    plt = plot(pltdata, layout)
+    mysavefig(plt, outdir, "distnace")
 end
 
 function main()
@@ -161,28 +191,33 @@ function main()
 end
 
 function exec()
-    export_target_polar("twitter")
-    export_target_polar("aps")
+    # export_target_polar("twitter")
+    # export_target_polar("aps")
 
-    export_target_polar("twitter"; base=true)
-    export_target_polar("aps"; base=true)
+    # export_target_polar("twitter"; colored=false)
+    # export_target_polar("aps"; colored=false)
 
-    export_best_fit_model_triangle("twitter")
-    export_best_fit_model_triangle("aps")
-    export_best_fit_model_triangle("twitter"; base=true)
-    export_best_fit_model_triangle("aps"; base=true)
-    export_target_triangle("twitter")
-    export_target_triangle("aps")
+    # export_target_polar("twitter"; base=true)
+    # export_target_polar("aps"; base=true)
 
-    export_best_fit_model_scatter("twitter")
-    export_best_fit_model_scatter("aps")
-    export_best_fit_model_scatter("twitter"; base=true)
-    export_best_fit_model_scatter("aps"; base=true)
-    export_target_scatter("twitter")
-    export_target_scatter("aps")
+    # export_target_polar("twitter"; base=true, colored=false)
+    # export_target_polar("aps"; base=true, colored=false)
 
-    export_distances("twitter")
-    export_distances("aps")
+    # export_best_fit_model_triangle("twitter")
+    # export_best_fit_model_triangle("aps")
+    # export_best_fit_model_triangle("twitter"; base=true)
+    # export_best_fit_model_triangle("aps"; base=true)
+    # export_target_triangle("twitter")
+    # export_target_triangle("aps")
+
+    # export_best_fit_model_scatter("twitter")
+    # export_best_fit_model_scatter("aps")
+    # export_best_fit_model_scatter("twitter"; base=true)
+    # export_best_fit_model_scatter("aps"; base=true)
+    # export_target_scatter("twitter")
+    # export_target_scatter("aps")
+
+    export_distances(["aps", "twitter"])
 end
 
 main()

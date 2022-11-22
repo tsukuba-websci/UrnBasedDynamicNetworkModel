@@ -4,6 +4,8 @@ using JSONTables
 using StatsBase
 using ProgressMeter
 
+include("../PlotUtils.jl")
+
 ##### parameters #####
 inputdir = "results/analyzed_classification"
 outdir = "results/imgs/classification"
@@ -39,10 +41,41 @@ function plot_class_size(target::String)
     df = DataFrame(CSV.File("$inputdir/class_size--$(target).csv"))
 
     pltdata = [
-        scatter(; x=1:nrow(df), y=df.c2, mode=:lines, name="class2")
-        scatter(; x=1:nrow(df), y=df.c3, mode=:lines, name="class3")
-        scatter(; x=1:nrow(df), y=df.c4, mode=:lines, name="class4")
-        scatter(; x=1:nrow(df), y=df.c5, mode=:lines, name="class5")
+        scatter(;
+            x=1:nrow(df),
+            y=df.c1,
+            mode=:lines,
+            marker_color=colors.tab10.colors[5],
+            name="class1",
+        )
+        scatter(;
+            x=1:nrow(df),
+            y=df.c2,
+            mode=:lines,
+            marker_color=colors.tab10.colors[1],
+            name="class2",
+        )
+        scatter(;
+            x=1:nrow(df),
+            y=df.c3,
+            mode=:lines,
+            marker_color=colors.tab10.colors[2],
+            name="class3",
+        )
+        scatter(;
+            x=1:nrow(df),
+            y=df.c4,
+            mode=:lines,
+            marker_color=colors.tab10.colors[3],
+            name="class4",
+        )
+        scatter(;
+            x=1:nrow(df),
+            y=df.c5,
+            mode=:lines,
+            marker_color=colors.tab10.colors[4],
+            name="class5",
+        )
     ]
     plt = plot(pltdata, Layout(; template=templates[:simple_white], yaxis_type=:log))
     return plt
@@ -141,12 +174,8 @@ function export_class_transition(target::String)
     p = Progress(length(agents); desc="exporting $target class transition")
     Threads.@threads for (i, agent) in collect(enumerate(agents))
         plt = _plot(agent, i)
-        savefig(
-            plt,
-            "$outdir/classification--$(target)--$(i).png";
-            height=256,
-            width=1024,
-            scale=2,
+        mysavefig(
+            plt, outdir, "classification--$(target)--$(i)"; height=256, width=1024, scale=2
         )
         next!(p)
     end
@@ -177,34 +206,34 @@ end
 function exec()
     for target in targets
         plt = plot_class_probability(target)
-        savefig(plt, "$outdir/class_probability--$target.png"; scale=2)
+        mysavefig(plt, outdir, "class_probability--$target")
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "$outdir/class_probability--$target--zoomed.png"; scale=2)
+        mysavefig(plt_zoomed, outdir, "class_probability--$target--zoomed")
     end
 
     for target in targets
         plt = plot_class_weight(target)
-        savefig(plt, "$outdir/class_weight--$target.png"; scale=2)
+        mysavefig(plt, outdir, "class_weight--$target")
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "$outdir/class_weight--$target--zoomed.png"; scale=2)
+        mysavefig(plt_zoomed, outdir, "class_weight--$target--zoomed")
     end
 
     for target in targets
         plt = plot_class_size(target)
-        savefig(plt, "$outdir/class_size--$target.png"; scale=2)
+        mysavefig(plt, outdir, "class_size--$target")
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "$outdir/class_size--$target--zoomed.png"; scale=2)
+        mysavefig(plt_zoomed, outdir, "class_size--$target--zoomed")
     end
 
     for target in targets
         plt = plot_classification_ratio(target)
-        savefig(plt, "$outdir/classification_ratio--$target.png"; scale=2)
+        mysavefig(plt, outdir, "classification_ratio--$target")
 
         plt_zoomed = zoom_in(plt)
-        savefig(plt_zoomed, "$outdir/classification_ratio--$target--zoomed.png"; scale=2)
+        mysavefig(plt_zoomed, outdir, "classification_ratio--$target--zoomed")
     end
 
     # for target in targets

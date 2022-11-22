@@ -1,3 +1,4 @@
 {
-  "workbench.list.openMode": "doubleClick"
+  "workbench.list.openMode": "doubleClick",
+  "python.analysis.typeCheckingMode": "basic"
 }

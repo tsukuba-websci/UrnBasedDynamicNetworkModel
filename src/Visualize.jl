@@ -2,6 +2,7 @@ using PlotlyJS
 using DataFrames, CSV, DataFramesMeta
 
 include("./Twitter.jl")
+include("./PlotUtils.jl")
 
 rho = 5
 nu = 5
@@ -47,8 +48,7 @@ function plot_polar(
 
     if filename !== nothing
         mkpath("imgs/analyzed")
-        savefig(plt, "imgs/analyzed/$filename.png"; scale=3, width=512, height=512)
-        savefig(plt, "imgs/analyzed/$filename.pdf"; width=512, height=512)
+        mysavefig(plt, "imgs/analyzed/", filename; width=512, height=512)
     end
     return plt
 end
