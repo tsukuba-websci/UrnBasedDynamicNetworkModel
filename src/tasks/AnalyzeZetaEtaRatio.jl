@@ -8,11 +8,11 @@ zetas = 0:0.005:1
 
 mvs = MeasuredValues[]
 p = Progress(length(zetas); showspeed=true)
-for zeta in zetas
+Threads.@threads for zeta in zetas
     zeta_str = replace(string(zeta), "." => "-")
     df = DataFrame(CSV.File("results/zeta_eta_ratio/history/$zeta_str.csv"))
     history = Tuple.(eachrow(df))
-    mv = MeasuredValues(history, ModelParams(2, 16, zeta, eta))
+    mv = MeasuredValues(history, ModelParams(20, 1, zeta, eta))
     push!(mvs, mv)
     next!(p)
 end
