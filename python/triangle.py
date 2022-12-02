@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 
 ##### パラメータ設定 #####
-target_dataset = "twitter"
+target_dataset = "aps"
 ########################
 
 

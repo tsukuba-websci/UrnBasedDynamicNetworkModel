@@ -12,6 +12,7 @@ matplotlib = "^3.5.3"
 black = "^22.6.0"
 ipykernel = "^6.15.1"
 tqdm = "^4.64.1"
+seaborn = "^0.12.1"
 
 [tool.poetry.dev-dependencies]
 
