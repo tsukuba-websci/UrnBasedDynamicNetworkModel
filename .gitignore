@@ -13,3 +13,4 @@ tree_data
 /*.png
 /*.jpg
 /**/*.zip
+data/generated_histories_*
