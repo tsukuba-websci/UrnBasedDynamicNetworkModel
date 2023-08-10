@@ -5,8 +5,16 @@ using ArgParse
 
 include("../AROB_Models.jl")
 
-function exec()
-    outdir = "results/generated_histories"
+function main()
+    if (length(ARGS) != 1 || !(ARGS[1] == "asw" || ARGS[1] == "wsw"))
+        throw(error("Please enter asw or wsw"))
+    end
+    s = ARGS[1]
+    exec(s)
+end
+
+function exec(s)
+    outdir = "results/generated_histories/$s"
 
     if isdir(outdir)
         ans = Base.prompt(
@@ -49,7 +57,7 @@ function exec()
                     end
 
                     env, labels, label_history = run_waves_model(
-                        rho, nu, gamma, eta; steps=20000
+                        rho, nu, s, gamma, eta; steps=20000
                     )
                     history_df = DataFrame(;
                         step=1:length(env.history),
@@ -78,4 +86,4 @@ function exec()
     end
 end
 
-exec()
+main()
