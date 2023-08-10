@@ -22,8 +22,8 @@ function exec()
     rm(outdir; recursive=true, force=true)
     mkpath(outdir)
 
-    rhos = 1:20 |> collect
-    nus = 1:20 |> collect
+    rhos = 1:30 |> collect
+    nus = 1:30 |> collect
     ss = ("asw", "wsw")
     zeta = 0
     eta = 0

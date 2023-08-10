@@ -30,8 +30,8 @@ function exec(s)
     rm(outdir; recursive=true, force=true)
     mkpath(outdir)
 
-    rhos = 1:10 |> collect
-    nus = 1:10 |> collect
+    rhos = 1:30 |> collect
+    nus = 1:30 |> collect
     gammas = 0.1:0.1:1.0 |> collect
     etas = 0.1:0.1:1.0 |> collect
 
