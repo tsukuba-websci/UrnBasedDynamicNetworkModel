@@ -12,9 +12,30 @@ end
 struct ModelParams
     rho::Int
     nu::Int
-    s::String
     zeta::Number
     eta::Number
+end
+
+
+function initialize_env_and_agents(rho::Int, nu::Int, s::String, get_caller::Function)::Tuple{Environment, Vector{Agent}}
+
+    if s == "asw"
+        env = Environment(; get_caller, who_update_buffer=:caller)
+        init_agents = [
+            Agent(rho, nu, ssw_strategy!)
+            Agent(rho, nu, ssw_strategy!)
+        ]
+    elseif s == "wsw"
+        env = Environment(; get_caller)
+        init_agents = [
+            Agent(rho, nu, wsw_strategy!)
+            Agent(rho, nu, wsw_strategy!)
+        ]
+    else
+        throw(error("strategy must be asw or wsw"))
+    end
+
+    return env, init_agents
 end
 
 """
@@ -104,21 +125,7 @@ function run_waves_model(
         return next_caller
     end
 
-    if s == "asw"
-        env = Environment(; get_caller, who_update_buffer=:caller)
-        init_agents = [
-            Agent(rho, nu, ssw_strategy!)
-            Agent(rho, nu, ssw_strategy!)
-        ]
-    elseif s == "wsw"
-        env = Environment(; get_caller)
-        init_agents = [
-            Agent(rho, nu, wsw_strategy!)
-            Agent(rho, nu, wsw_strategy!)
-        ]
-    else
-        throw(error("strategy must be asw or wsw"))
-    end
+    env, init_agents = initialize_env_and_agents(rho, nu, s, get_caller)
     init!(env, init_agents)
 
     for step in 1:steps
@@ -188,21 +195,7 @@ function run_normal_model(
         return next_caller
     end
 
-    if s == "asw"
-        env = Environment(; get_caller, who_update_buffer=:caller)
-        init_agents = [
-            Agent(rho, nu, ssw_strategy!)
-            Agent(rho, nu, ssw_strategy!)
-        ]
-    elseif s == "wsw"
-        env = Environment(; get_caller)
-        init_agents = [
-            Agent(rho, nu, wsw_strategy!)
-            Agent(rho, nu, wsw_strategy!)
-        ]
-    else
-        throw(error("strategy must be asw or wsw"))
-    end
+    env, init_agents = initialize_env_and_agents(rho, nu, s, get_caller)
     init!(env, init_agents)
 
     for step in 1:steps
