@@ -1,5 +1,6 @@
 .ipynb_checkpoints
 .venv
+.DS_Store
 poetry.lock
 
 results
