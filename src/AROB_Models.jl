@@ -12,6 +12,7 @@ end
 struct ModelParams
     rho::Int
     nu::Int
+    s::String
     zeta::Number
     eta::Number
 end
@@ -22,6 +23,7 @@ waves of novelties モデル
 function run_waves_model(
     rho::Int,
     nu::Int,
+    s::String,
     gamma::Float64,
     eta::Float64;
     steps=200000,
@@ -102,11 +104,21 @@ function run_waves_model(
         return next_caller
     end
 
-    env = Environment(; get_caller)
-    init_agents = [
-        Agent(rho, nu, ssw_strategy!)
-        Agent(rho, nu, ssw_strategy!)
-    ]
+    if s == "asw"
+        env = Environment(; get_caller, who_update_buffer=:caller)
+        init_agents = [
+            Agent(rho, nu, ssw_strategy!)
+            Agent(rho, nu, ssw_strategy!)
+        ]
+    elseif s == "wsw"
+        env = Environment(; get_caller)
+        init_agents = [
+            Agent(rho, nu, wsw_strategy!)
+            Agent(rho, nu, wsw_strategy!)
+        ]
+    else
+        throw(error("strategy must be asw or wsw"))
+    end
     init!(env, init_agents)
 
     for step in 1:steps
@@ -126,7 +138,7 @@ function run_waves_model(
 end
 
 function run_normal_model(
-    rho::Int, nu::Int; steps=200000, on_classify::Union{Function,Nothing}=nothing
+    rho::Int, nu::Int, s::String; steps=200000, on_classify::Union{Function,Nothing}=nothing
 )::Tuple{Environment,Vector{Int},Vector{LabelHistoryRecord}}
     last_label = 3
     labels = Int[[1, 1]; ones(Int, nu + 1) .* 2; ones(Int, nu + 1) .* 3]
@@ -176,11 +188,21 @@ function run_normal_model(
         return next_caller
     end
 
-    env = Environment(; get_caller)
-    init_agents = [
-        Agent(rho, nu, ssw_strategy!)
-        Agent(rho, nu, ssw_strategy!)
-    ]
+    if s == "asw"
+        env = Environment(; get_caller, who_update_buffer=:caller)
+        init_agents = [
+            Agent(rho, nu, ssw_strategy!)
+            Agent(rho, nu, ssw_strategy!)
+        ]
+    elseif s == "wsw"
+        env = Environment(; get_caller)
+        init_agents = [
+            Agent(rho, nu, wsw_strategy!)
+            Agent(rho, nu, wsw_strategy!)
+        ]
+    else
+        throw(error("strategy must be asw or wsw"))
+    end
     init!(env, init_agents)
 
     for step in 1:steps
