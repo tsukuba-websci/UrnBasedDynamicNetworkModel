@@ -32,20 +32,20 @@ function exec(s)
 
     rhos = 1:30 |> collect
     nus = 1:30 |> collect
-    gammas = 0.1:0.1:1.0 |> collect
+    zetas = 0.1:0.1:1.0 |> collect
     etas = 0.1:0.1:1.0 |> collect
 
-    p = Progress(length(gammas) * length(etas) * length(rhos) * length(nus); showspeed=true)
+    p = Progress(length(zetas) * length(etas) * length(rhos) * length(nus); showspeed=true)
     Threads.@threads for rho in rhos
         Threads.@threads for nu in nus
-            for gamma in gammas
+            for zeta in zetas
                 for eta in etas
                     rhostr = string(rho)
                     nustr = string(nu)
-                    gammastr = replace(string(gamma), "." => "")
+                    zetastr = replace(string(zeta), "." => "")
                     etastr = replace(string(eta), "." => "")
 
-                    filename = "rho$(rhostr)_nu$(nustr)_gamma$(gammastr)_eta$(etastr)"
+                    filename = "rho$(rhostr)_nu$(nustr)_zeta$(zetastr)_eta$(etastr)"
 
                     if (
                         isfile("$outdir/$filename--history.csv") &&
@@ -57,7 +57,7 @@ function exec(s)
                     end
 
                     env, labels, label_history = run_waves_model(
-                        rho, nu, s, gamma, eta; steps=20000
+                        rho, nu, s, zeta, eta; steps=20000
                     )
                     history_df = DataFrame(;
                         step=1:length(env.history),

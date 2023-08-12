@@ -41,7 +41,7 @@ function exec()
                 zetastr = replace(string(zeta), "." => "")
                 etastr = replace(string(eta), "." => "")
 
-                filename = "rho$(rhostr)_nu$(nustr)_gamma$(zetastr)_eta$(etastr)"
+                filename = "rho$(rhostr)_nu$(nustr)_zeta$(zetastr)_eta$(etastr)"
 
                 if (
                     isfile("$outdir/$s/$filename--history.csv") &&
