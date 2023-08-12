@@ -30,10 +30,10 @@ function exec(s)
     rm(outdir; recursive=true, force=true)
     mkpath(outdir)
 
-    rhos = 1:30 |> collect
-    nus = 1:30 |> collect
-    zetas = 0.1:0.1:1.0 |> collect
-    etas = 0.1:0.1:1.0 |> collect
+    rhos = 2:2:30 |> collect
+    nus = 2:2:30 |> collect
+    zetas = 0.2:0.2:1.0 |> collect
+    etas = 0.2:0.2:1.0 |> collect
 
     p = Progress(length(zetas) * length(etas) * length(rhos) * length(nus); showspeed=true)
     Threads.@threads for rho in rhos
