@@ -5,8 +5,16 @@ using ArgParse
 
 include("../AROB_Models.jl")
 
-function exec()
-    outdir = "results/generated_histories"
+function main()
+    if (length(ARGS) != 1 || !(ARGS[1] == "asw" || ARGS[1] == "wsw"))
+        throw(error("Please enter asw or wsw"))
+    end
+    s = ARGS[1]
+    exec(s)
+end
+
+function exec(s)
+    outdir = "results/generated_histories/$s"
 
     if isdir(outdir)
         ans = Base.prompt(
@@ -22,22 +30,22 @@ function exec()
     rm(outdir; recursive=true, force=true)
     mkpath(outdir)
 
-    rhos = 1:10 |> collect
-    nus = 1:10 |> collect
-    gammas = 0.1:0.1:1.0 |> collect
-    etas = 0.1:0.1:1.0 |> collect
+    rhos = 2:2:30 |> collect
+    nus = 2:2:30 |> collect
+    zetas = 0.2:0.2:1.0 |> collect
+    etas = 0.2:0.2:1.0 |> collect
 
-    p = Progress(length(gammas) * length(etas) * length(rhos) * length(nus); showspeed=true)
+    p = Progress(length(zetas) * length(etas) * length(rhos) * length(nus); showspeed=true)
     Threads.@threads for rho in rhos
         Threads.@threads for nu in nus
-            for gamma in gammas
+            for zeta in zetas
                 for eta in etas
                     rhostr = string(rho)
                     nustr = string(nu)
-                    gammastr = replace(string(gamma), "." => "")
+                    zetastr = replace(string(zeta), "." => "")
                     etastr = replace(string(eta), "." => "")
 
-                    filename = "rho$(rhostr)_nu$(nustr)_gamma$(gammastr)_eta$(etastr)"
+                    filename = "rho$(rhostr)_nu$(nustr)_zeta$(zetastr)_eta$(etastr)"
 
                     if (
                         isfile("$outdir/$filename--history.csv") &&
@@ -49,7 +57,7 @@ function exec()
                     end
 
                     env, labels, label_history = run_waves_model(
-                        rho, nu, gamma, eta; steps=20000
+                        rho, nu, s, zeta, eta; steps=20000
                     )
                     history_df = DataFrame(;
                         step=1:length(env.history),
@@ -78,4 +86,4 @@ function exec()
     end
 end
 
-exec()
+main()
