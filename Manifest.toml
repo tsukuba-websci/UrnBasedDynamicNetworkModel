@@ -534,7 +534,7 @@ version = "0.18.10"
 
 [[deps.PolyaUrnSimulator]]
 deps = ["ProgressMeter", "StatsBase"]
-git-tree-sha1 = "89ffd0b47ed3146a16f79591e4959c7f7453bd10"
+git-tree-sha1 = "b6430d50ed39e146cb9f486a32d2d72b15c77226"
 repo-rev = "main"
 repo-url = "https://github.com/tsukuba-websci/PolyaUrnSimulator"
 uuid = "4bcabfa6-eebd-487a-8b4a-99bb3a891d86"
