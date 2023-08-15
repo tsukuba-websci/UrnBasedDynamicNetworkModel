@@ -1,6 +1,6 @@
 using DynamicNetworkMeasuringTools
 
-include("./AROB_Models.jl")
+include("./Models.jl")
 
 struct MeasuredValues
     rho::Int

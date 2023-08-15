@@ -2,7 +2,7 @@ using DataFrames, CSV, JSONTables
 using PlotlyJS
 using StatsBase
 
-include("../AROB_Models.jl")
+include("../Models.jl")
 include("../Classification.jl")
 
 ###### parameters #####

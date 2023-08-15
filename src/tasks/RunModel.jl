@@ -3,7 +3,7 @@ using ProgressMeter
 using Dates
 using ArgParse
 
-include("../AROB_Models.jl")
+include("../Models.jl")
 
 function main()
     if (length(ARGS) != 1 || !(ARGS[1] == "asw" || ARGS[1] == "wsw"))
