@@ -3,7 +3,7 @@ using ProgressMeter
 using ArgParse
 
 include("../Utils.jl")
-include("../AROB_Models.jl")
+include("../Models.jl")
 include("../Calc.jl")
 
 outfile = ""

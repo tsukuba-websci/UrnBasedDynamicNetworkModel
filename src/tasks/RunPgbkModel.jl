@@ -6,7 +6,7 @@ using ArgParse
 include("../Models.jl")
 
 function exec()
-    outdir = "results/generated_histories--base"
+    outdir = "results/generated_histories--pgbk"
 
     if isdir(outdir)
         ans = Base.prompt(
@@ -43,33 +43,19 @@ function exec()
 
                 filename = "rho$(rhostr)_nu$(nustr)_zeta$(zetastr)_eta$(etastr)"
 
-                if (
-                    isfile("$outdir/$s/$filename--history.csv") &&
-                    isfile("$outdir/$s/$filename--labels.csv") &&
-                    isfile("$outdir/$s/$filename--label_history.csv")
-                )
+                if (isfile("$outdir/$s/$filename--history.csv"))
                     next!(p)
                     continue
                 end
 
-                env, labels, label_history = run_normal_model(rho, nu, s; steps=20000)
+                env = run_pgbk_model(rho, nu, s; steps=20000)
                 history_df = DataFrame(;
                     step=1:length(env.history), src=first.(env.history), dst=last.(env.history)
                 )
-                labels_df = DataFrame(; id=1:length(labels), label=labels)
-                label_history_df = DataFrame(label_history)
-
                 env = nothing
-                labels = nothing
-                label_history = nothing
 
                 CSV.write("$outdir/$s/$filename--history.csv", history_df)
-                CSV.write("$outdir/$s/$filename--labels.csv", labels_df)
-                CSV.write("$outdir/$s/$filename--label_history.csv", label_history_df)
-
                 history_df = nothing
-                labels_df = nothing
-                label_history_df = nothing
 
                 next!(p)
             end

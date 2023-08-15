@@ -1,6 +1,6 @@
 using AbstractTrees
 
-include("./AROB_Models.jl")
+include("./Models.jl")
 include("./Tree.jl")
 
 function newick(root::LabelTreeNode)

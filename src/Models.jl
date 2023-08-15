@@ -39,7 +39,7 @@ function initialize_env_and_agents(rho::Int, nu::Int, s::String, get_caller::Fun
 end
 
 """
-waves of novelties モデル
+waves of novelties モデル(proposed)
 """
 function run_waves_model(
     rho::Int,
@@ -144,6 +144,10 @@ function run_waves_model(
     return env, labels, label_tree
 end
 
+
+"""
+base モデル
+"""
 function run_normal_model(
     rho::Int, nu::Int, s::String; steps=200000, on_classify::Union{Function,Nothing}=nothing
 )::Tuple{Environment,Vector{Int},Vector{LabelHistoryRecord}}
@@ -212,4 +216,45 @@ function run_normal_model(
     end
 
     return env, labels, label_tree
+end
+
+"""
+IEEE ALIFE論文掲載モデルのGABM-PGBK1
+
+- アクティブ回数を重みとしてランクを選択
+- ランク中で最も分不相応度が高いエージェントを caller として選択
+- caller と called はの間の紹介は wsw 戦略
+"""
+function run_pgbk_model(rho::Int, nu::Int, s::String; steps=200000)::Environment
+    priorities = Float64[0.0, 0.0]
+    active_counts = Int[1, 1]
+
+    function get_caller(env::Environment)
+        active_count_ranks = active_counts |> unique
+        selected_rank = sample(active_count_ranks, Weights(active_count_ranks))
+        aids_in_rank = findall(s -> s == selected_rank, active_counts)
+
+        # ランク中のエージェントの中から、プライオリティが最高のものを選ぶ
+        return aids_in_rank[argmax(priorities[aids_in_rank])]
+    end
+
+    env, init_agents = initialize_env_and_agents(rho, nu, s, get_caller)
+    init!(env, init_agents)
+
+    for _ in 1:steps
+        step!(env)
+
+        if length(active_counts) < length(env.rhos)
+            append!(active_counts, zeros(length(env.rhos) - length(active_counts)))
+        end
+        caller, callee = env.history[end]
+        active_counts[caller] += 1
+        active_counts[callee] += 1
+
+        append!(priorities, zeros(length(env.rhos) - length(priorities)))
+        caller, callee = env.history[end]
+        priorities[callee] = env.urn_sizes[caller] / env.urn_sizes[callee]
+    end
+
+    return env
 end
