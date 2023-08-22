@@ -21,38 +21,44 @@ function Distance(model::MeasuredValues, target::MeasuredValues)
     return Distance(model.rho, model.nu, model.zeta, model.eta, distance)
 end
 
-analyzed_models_file = ""
+infile = ""
 outdir = ""
 
 function main()
-    s = ArgParseSettings()
 
-    @add_arg_table s begin
-        "--base"
-        help = "Calculate diffs between base model"
-        action = :store_true
+    arg_parse = ArgParseSettings()
+
+    @add_arg_table arg_parse begin
+        "model"
+        help = "Specify the model (base, pgbk, proposed)"
     end
 
-    args = parse_args(s)
-    isbase = args["base"]
+    args = parse_args(arg_parse)
 
-    if isbase
-        global outdir = "results/distances--base"
-        global analyzed_models_file = "results/analyzed_models--base.csv"
+    if args["model"] == nothing
+        model = "proposed"
     else
-        global outdir = "results/distances"
-        global analyzed_models_file = "results/analyzed_models.csv"
+        model = args["model"]
     end
 
-    if !isfile(analyzed_models_file)
-        println("Cannot find $analyzed_models_file.")
+    if model != "proposed" && model != "base" && model != "pgbk"
+        println("Error: Invalid model specified. Please specify base, pgbk, or proposed.")
         return nothing
     end
 
+    if model == "proposed"
+        global infile = "analyzed_models.csv"
+        global outdir = "results/distances"
+    elseif model == "base"
+        global infile = "analyzed_models--base.csv"
+        global outdir = "results/distances--base"
+    elseif model == "pgbk"
+        global infile = "analyzed_models--pgbk.csv"
+        global outdir = "results/distances--pgbk"
+    end
+
     if isdir(outdir)
-        ans = Base.prompt(
-            "The directory $outdir exists. Do you want to overwrite it? [y/N]"; default="N"
-        )
+        ans = Base.prompt("The directory $outdir exists. Do you want to overwrite it? [y/N]"; default="N")
         if ans != "y"
             println("Aborted.")
             return nothing
@@ -64,33 +70,48 @@ function main()
 
     analyzed_target_paths = readdir("results/analyzed_targets")
     targets = map(path -> replace(path, ".csv" => ""), analyzed_target_paths)
-    exec(targets)
-end
-
-function exec(targets::Vector{String})
-    ahs = DataFrame(CSV.File(analyzed_models_file))
-    mvs = map(ah -> MeasuredValues(ah...), eachrow(ahs))
 
     for target in targets
-        target_mv = MeasuredValues(
-            DataFrame(CSV.File("results/analyzed_targets/$target.csv"))[1, :]...
-        )
-
-        distances = Distance[]
-        for mv in mvs
-            push!(distances, Distance(mv, target_mv))
+        if target == "aps"
+            s = "asw"
+        else
+            s = "wsw"
         end
 
-        distances_df = DataFrame(distances)
-        sort!(distances_df, [:distance])
-        rename!(distances_df, :distance => target)
-        CSV.write("$outdir/$target.csv", distances_df)
+        if !isfile("results/$s/$infile")
+            println("Cannot find results/$s/$infile.")
+            return nothing
+        end
+
+        exec(model, target, s)
+    end
+end
+
+
+function exec(model::String, target::String, s::String)
+    ahs = DataFrame(CSV.File("results/$s/$infile"))
+    mvs = map(ah -> MeasuredValues(ah...), eachrow(ahs))
+
+    target_mv = MeasuredValues(
+        DataFrame(CSV.File("results/analyzed_targets/$target.csv"))[1, :]...
+    )
+
+    distances = Distance[]
+    for mv in mvs
+        push!(distances, Distance(mv, target_mv))
     end
 
+    distances_df = DataFrame(distances)
+    sort!(distances_df, [:distance])
+    rename!(distances_df, :distance => target)
+    CSV.write("$outdir/$target.csv", distances_df)
+
     # Rを最も小さくするパラメータも出す
-    analyzed_models = DataFrame(CSV.File("results/analyzed_models.csv"))
-    min_r_params = (; sort(analyzed_models, :r)[1, [:rho, :nu, :zeta, :eta]]..., min_r=0)
-    CSV.write("$outdir/min_r.csv", DataFrame(; min_r_params...))
+    if model == "proposed"
+        analyzed_models = DataFrame(CSV.File("results/$s/$infile"))
+        min_r_params = (; sort(analyzed_models, :r)[1, [:rho, :nu, :zeta, :eta]]..., min_r=0)
+        CSV.write("$outdir/min_$infile.csv", DataFrame(; min_r_params...))
+    end
 end
 
 main()
