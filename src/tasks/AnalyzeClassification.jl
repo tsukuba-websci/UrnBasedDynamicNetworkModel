@@ -10,6 +10,8 @@ outdir = "results/analyzed_classification"
 targets = ["twitter", "aps", "min_r"]
 #######################
 
+
+
 function main()
     if isdir(outdir)
         res = Base.prompt(
@@ -52,9 +54,17 @@ function exec(target::String)
             1, [:rho, :nu, :zeta, :eta]
         ]...,
     )
+
+    if target == "aps"
+        s = "asw"
+    else
+        s = "wsw"
+    end
+
     env, labels, label_history = run_waves_model(
         p.rho,
         p.nu,
+        s,
         p.zeta,
         p.eta;
         on_classify=on_classify(cs),
