@@ -47,13 +47,13 @@ function main()
     end
 
     if model == "proposed"
-        global infile = "analyzed_models.csv"
+        global infile = ".csv"
         global outdir = "results/distances"
     elseif model == "base"
-        global infile = "analyzed_models--base.csv"
+        global infile = "--base.csv"
         global outdir = "results/distances--base"
     elseif model == "pgbk"
-        global infile = "analyzed_models--pgbk.csv"
+        global infile = "--pgbk.csv"
         global outdir = "results/distances--pgbk"
     end
 
@@ -78,8 +78,8 @@ function main()
             s = "wsw"
         end
 
-        if !isfile("results/$s/$infile")
-            println("Cannot find results/$s/$infile.")
+        if !isfile("results/analyzed_models/$s$infile")
+            println("Cannot find results/analyzed_models/$s$infile.")
             return nothing
         end
 
@@ -89,7 +89,7 @@ end
 
 
 function exec(model::String, target::String, s::String)
-    ahs = DataFrame(CSV.File("results/$s/$infile"))
+    ahs = DataFrame(CSV.File("results/analyzed_models/$s$infile"))
     mvs = map(ah -> MeasuredValues(ah...), eachrow(ahs))
 
     target_mv = MeasuredValues(
@@ -108,9 +108,9 @@ function exec(model::String, target::String, s::String)
 
     # Rを最も小さくするパラメータも出す
     if model == "proposed"
-        analyzed_models = DataFrame(CSV.File("results/$s/$infile"))
+        analyzed_models = DataFrame(CSV.File("results/analyzed_models/$s$infile"))
         min_r_params = (; sort(analyzed_models, :r)[1, [:rho, :nu, :zeta, :eta]]..., min_r=0)
-        CSV.write("$outdir/min_$infile.csv", DataFrame(; min_r_params...))
+        CSV.write("$outdir/min_r.csv", DataFrame(; min_r_params...))
     end
 end
 

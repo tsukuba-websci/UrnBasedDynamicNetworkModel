@@ -36,13 +36,13 @@ function main()
 
     if model == "proposed"
         global indir = "results/generated_histories"
-        global outfile = "analyzed_models.csv"
+        global outfile = ".csv"
     elseif model == "base"
         global indir = "results/generated_histories--base"
-        global outfile = "analyzed_models--base.csv"
+        global outfile = "--base.csv"
     elseif model == "pgbk"
         global indir = "results/generated_histories--pgbk"
-        global outfile = "analyzed_models--pgbk.csv"
+        global outfile = "--pgbk.csv"
     end
 
     if isfile(outfile)
@@ -99,8 +99,8 @@ function exec(model::String)
                 end
             end
         end
-        mkpath("results/$s")
-        CSV.write("results/$s/$outfile", DataFrame(mvs))
+        mkpath("results/analyzed_models")
+        CSV.write("results/analyzed_models/$s$outfile", DataFrame(mvs))
     end
 end
 
