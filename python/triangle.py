@@ -85,9 +85,7 @@ for index, target in tqdm(df.iterrows()):
     plt.savefig(f"{output_dir}/{target.aid}_triangle.png", dpi=300)
     plt.close()
 
-    history_df = pd.read_csv(
-        f"results/triangle/{target_dataset}/history_{target.aid}.csv"
-    )
+    history_df = pd.read_csv(f"results/triangle/{target_dataset}/history_{target.aid}.csv")
 
     history_df["marker"] = history_df[["call", "called"]].apply(convert_marker, axis=1)
     history_df["color"] = history_df["class"].apply(select_color)
@@ -102,8 +100,8 @@ for index, target in tqdm(df.iterrows()):
             c=list(gdf["color"]),
             marker=marker,  # type: ignore
             edgecolors="none",
-            s=25 if marker == "o" else 50,
-            alpha=1,
+            s=4 if marker == "o" else 50,
+            alpha=0.01 if marker == "o" else 1,
         )
 
     patches = [
@@ -113,6 +111,7 @@ for index, target in tqdm(df.iterrows()):
         mpatches.Patch(color=colors["blue"], label="class 4"),
         mpatches.Patch(color=colors["violet"], label="class 5"),
     ]
+    plt.gca().get_yaxis().set_major_locator(ticker.MaxNLocator(integer=True))  # 軸のメモリを整数にする
     plt.legend(handles=patches)
     plt.xlabel("iteration")
     plt.ylabel("Cumulative number of activities")
