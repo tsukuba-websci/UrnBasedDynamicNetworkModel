@@ -1,30 +1,38 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import os
 import shutil
-from typing import List, Tuple, Any, List, TypeVar, Optional
-import matplotlib.pyplot as plt
+from typing import Any, List, Optional, Tuple, TypeVar
+
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import pandas as pd
 from tqdm import tqdm
-
 
 ##### パラメータ設定 #####
 target_dataset = "aps"
 ########################
 
+colors = {
+    "violet": "#A884A3",
+    "blue": "#66A2BB",
+    "green": "#87C08B",
+    "orange": "#DCA753",
+    "red": "#DF736C",
+    "black": "#555555",
+}
+
 
 def select_color(klass):
     if klass == "c1":
-        return "purple"
+        return colors["orange"]
     elif klass == "c2":
-        return "blue"
+        return colors["red"]
     elif klass == "c3":
-        return "orange"
+        return colors["green"]
     elif klass == "c4":
-        return "green"
+        return colors["blue"]
     elif klass == "c5":
-        return "red"
+        return colors["violet"]
     else:
         return "gray"
 
@@ -99,11 +107,11 @@ for index, target in tqdm(df.iterrows()):
         )
 
     patches = [
-        mpatches.Patch(color="purple", label="class 1", alpha=0.5),
-        mpatches.Patch(color="blue", label="class 2", alpha=0.5),
-        mpatches.Patch(color="orange", label="class 3", alpha=0.5),
-        mpatches.Patch(color="green", label="class 4", alpha=0.5),
-        mpatches.Patch(color="red", label="class 5", alpha=0.5),
+        mpatches.Patch(color=colors["orange"], label="class 1"),
+        mpatches.Patch(color=colors["red"], label="class 2"),
+        mpatches.Patch(color=colors["green"], label="class 3"),
+        mpatches.Patch(color=colors["blue"], label="class 4"),
+        mpatches.Patch(color=colors["violet"], label="class 5"),
     ]
     plt.legend(handles=patches)
     plt.xlabel("iteration")
