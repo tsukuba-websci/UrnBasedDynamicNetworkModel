@@ -214,41 +214,41 @@ function main()
 end
 
 function exec()
+    mkpath("$outdir/class_probability")
     for target in targets
         plt = plot_class_probability(target)
-        mysavefig(plt, outdir, "class_probability--$target")
+        mysavefig(plt, "$outdir/class_probability", "$target")
 
         plt_zoomed = zoom_in(plt)
-        mysavefig(plt_zoomed, outdir, "class_probability--$target--zoomed")
+        mysavefig(plt_zoomed, "$outdir/class_probability", "$target--zoomed")
     end
 
+    mkpath("$outdir/class_weight")
     for target in targets
         plt = plot_class_weight(target)
-        mysavefig(plt, outdir, "class_weight--$target")
+        mysavefig(plt, "$outdir/class_weight", "$target")
 
         plt_zoomed = zoom_in(plt)
-        mysavefig(plt_zoomed, outdir, "class_weight--$target--zoomed")
+        mysavefig(plt_zoomed, "$outdir/class_weight", "$target--zoomed")
     end
 
+    mkpath("$outdir/class_size")
     for target in targets
         plt = plot_class_size(target)
-        mysavefig(plt, outdir, "class_size--$target")
+        mysavefig(plt, "$outdir/class_size", "$target")
 
         plt_zoomed = zoom_in(plt)
-        mysavefig(plt_zoomed, outdir, "class_size--$target--zoomed")
+        mysavefig(plt_zoomed, "$outdir/class_size", "$target--zoomed")
     end
 
+    mkpath("$outdir/classification_ratio")
     for target in targets
         plt = plot_classification_ratio(target)
-        mysavefig(plt, outdir, "classification_ratio--$target")
+        mysavefig(plt, "$outdir/classification_ratio", "$target")
 
         plt_zoomed = zoom_in(plt)
-        mysavefig(plt_zoomed, outdir, "classification_ratio--$target--zoomed")
+        mysavefig(plt_zoomed, "$outdir/classification_ratio", "$target--zoomed")
     end
-
-    # for target in targets
-    #     export_class_transition(target)
-    # end
 end
 
 main()
