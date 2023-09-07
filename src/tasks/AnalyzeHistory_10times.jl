@@ -18,10 +18,10 @@ function main()
 end
 
 function exec()
-    rhos = [1, 5, 10]
+    rhos = [1, 5, 10, 15, 20, 25, 30]
     nus = [1, 5, 10, 15, 20, 25, 30]
-    zetas = [0.1, 0.5, 0.9]
-    etas = [0.1, 0.5, 0.9]
+    zetas = [0.2, 0.4, 0.6, 0.8, 1.0]
+    etas = [0.2, 0.4, 0.6, 0.8, 1.0]
     ss = ["asw", "wsw"]
 
     for i = 1:10
@@ -36,7 +36,6 @@ function exec()
                         Threads.@threads for eta in etas
                             params = ModelParams(rho, nu, zeta, eta)
                             history_filepath = "$indir/$i/rho$(rho)_nu$(nu)_$(s)_zeta$(tostring(zeta))_eta$(tostring(eta))--history.csv"
-                            print(history_filepath, "\n")
                             df = DataFrame(CSV.File(history_filepath))
                             history = Tuple.(zip(df.src, df.dst))
                             mv = MeasuredValues(history, params)
