@@ -48,8 +48,8 @@ function exec()
                     end
                 end
             end
-            mkpath("results/analyzed_models_10times")
-            CSV.write("results/analyzed_models_10times/$(i)_$s.csv", DataFrame(mvs))
+            mkpath("results/analyzed_models_10times/$s")
+            CSV.write("results/analyzed_models_10times/$s/$(i).csv", DataFrame(mvs))
         end
     end
 end
