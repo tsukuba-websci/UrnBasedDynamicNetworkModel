@@ -23,6 +23,51 @@ colors = Dict(
 
 mkpath(outdir)
 
+
+"""
+    get_birthsteps(history::History)::Dict{Int, Int}
+
+history中に存在するエージェントの誕生ステップをDictで返す
+"""
+function get_birthsteps(history::History)::Dict{Int,Int}
+    src = history .|> first
+    dst = history .|> last
+    t = 1:length(src) |> collect
+    df = DataFrame(; t, src, dst)
+
+    dfsrc = rename(select(unique(df, :src), [:t, :src]), :src => :aid)
+    dfdst = rename(select(unique(df, :dst), [:t, :dst]), :dst => :aid)
+
+    replacemissing! = df -> begin
+        for col in eachcol(df)
+            replace!(col, missing => length(history) + 1)
+        end
+        return df
+    end
+    joined = outerjoin(dfsrc, dfdst; on=:aid, renamecols="_s" => "_d") |> replacemissing!
+    joined.t = min.(joined.t_s, joined.t_d)
+
+    return Pair.(joined.aid, joined.t) |> Dict
+end
+
+function plot_time_access_scatter(history::History)
+    flatten_history = vcat((history .|> collect)...)
+
+    birthsteps = get_birthsteps(history) |> sort |> values |> collect
+    counts = countmap(flatten_history) |> sort |> values |> collect
+
+    pltdata = scatter(; x=birthsteps, y=counts ./ length(history), mode="markers", marker=attr(size=7, opacity=0.3))
+    layout = Layout(;
+        template=templates[:simple_white],
+        xaxis=attr(; type=:log, title="Birth step"),
+        yaxis=attr(; type=:log, title="Active frequency"),
+    )
+    return plot(pltdata, layout)
+end
+
+
+
+
 function plot_polar(mvs::Vector{MeasuredValues}, labels::Vector{String}, marker_colors::Vector{String}, line_dashes::Vector{String}; colored=true)
     _theta = ["γ", "C", "OC", "OO", "NC", "NO", "Y", "R", "<h>", "G"]
 
@@ -167,14 +212,29 @@ function export_target_triangle(target::String)
     return plt
 end
 
-function export_best_fit_model_scatter(target::String; base::Bool=false)
+function export_best_fit_model_scatter(target::String; model::String="proposed")
+    if model == "proposed"
+        option = ""
+    elseif model == "base"
+        option = "--base"
+    elseif model == "pgbk"
+        option = "--pgbk"
+    else
+        println("model = base, proposed or pgbk")
+        return
+    end
     target_distances = DataFrame(
-        CSV.File("results/distances$(base ? "--base" : "")/$target.csv")
+        CSV.File("results/distances$option/$target.csv")
     )
     sort!(target_distances, target)
 
+    if target == "aps"
+        s = "asw"
+    else
+        s = "wsw"
+    end
     (rho, nu, zeta, eta) = target_distances[1, [:rho, :nu, :zeta, :eta]]
-    filepath = "results/generated_histories$(base ? "--base" : "")/$(params2str(rho, nu, zeta, eta))--history.csv"
+    filepath = "results/generated_histories$option/$s/$(params2str(rho, nu, zeta, eta))--history.csv"
     history = history_df2vec(DataFrame(CSV.File(filepath)))
 
     plt = plot_time_access_scatter(history)
@@ -184,8 +244,12 @@ function export_best_fit_model_scatter(target::String; base::Bool=false)
         font_family="Times New Roman",
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
+        yaxis_range=[log(0.012), log(0.5)],
     )
-    mysavefig(plt, outdir, "scatter--best_fit_model_for_$(target)$(base ? "--base" : "")")
+    if !isdir("$outdir/scatter")
+        mkdir("$outdir/scatter")
+    end
+    mysavefig(plt, "$outdir/scatter", "best_fit_model_for_$(target)$option")
     return plt
 end
 
@@ -199,8 +263,12 @@ function export_target_scatter(target::String)
         font_family="Times New Roman",
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
+        yaxis_range=[log(0.012), log(0.5)],
     )
-    mysavefig(plt, outdir, "scatter--target_$(target)")
+    if !isdir("$outdir/scatter")
+        mkdir("$outdir/scatter")
+    end
+    mysavefig(plt, "$outdir/scatter", "target_$(target)")
     return plt
 end
 
@@ -267,13 +335,6 @@ function main()
 end
 
 function exec()
-
-    # export_best_fit_model_scatter("twitter")
-    # export_best_fit_model_scatter("aps")
-    # export_best_fit_model_scatter("twitter"; base=true)
-    # export_best_fit_model_scatter("aps"; base=true)
-    # export_target_scatter("twitter")
-    # export_target_scatter("aps")
     export_target_polar("twitter")
     export_target_polar("aps")
 
@@ -286,6 +347,16 @@ function exec()
     export_best_fit_model_triangle("aps"; model="pgbk")
     export_target_triangle("twitter")
     export_target_triangle("aps")
+
+    export_best_fit_model_scatter("twitter")
+    export_best_fit_model_scatter("aps")
+    export_best_fit_model_scatter("twitter"; model="base")
+    export_best_fit_model_scatter("aps"; model="base")
+    export_best_fit_model_scatter("twitter"; model="pgbk")
+    export_best_fit_model_scatter("aps"; model="pgbk")
+    export_target_scatter("twitter")
+    export_target_scatter("aps")
+
     export_distances(["aps", "twitter"])
 end
 
