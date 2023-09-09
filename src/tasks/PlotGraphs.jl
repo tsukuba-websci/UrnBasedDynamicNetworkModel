@@ -109,14 +109,29 @@ function export_target_polar(target::String; colored=true)
     return plt
 end
 
-function export_best_fit_model_triangle(target::String; base::Bool=false)
+function export_best_fit_model_triangle(target::String; model::String="proposed")
+    if model == "proposed"
+        option = ""
+    elseif model == "base"
+        option = "--base"
+    elseif model == "pgbk"
+        option = "--pgbk"
+    else
+        println("model = base, proposed or pgbk")
+        return
+    end
     target_distances = DataFrame(
-        CSV.File("results/distances$(base ? "--base" : "")/$target.csv")
+        CSV.File("results/distances$option/$target.csv")
     )
     sort!(target_distances, target)
 
+    if target == "aps"
+        s = "asw"
+    else
+        s = "wsw"
+    end
     (rho, nu, zeta, eta) = target_distances[1, [:rho, :nu, :zeta, :eta]]
-    filepath = "results/generated_histories$(base ? "--base" : "")/$(params2str(rho, nu, zeta, eta))--history.csv"
+    filepath = "results/generated_histories$option/$s/$(params2str(rho, nu, zeta, eta))--history.csv"
     history = history_df2vec(DataFrame(CSV.File(filepath)))
 
     plt = plot_rich_get_richer_triangle(history, length(history) ÷ 100)
@@ -127,7 +142,10 @@ function export_best_fit_model_triangle(target::String; base::Bool=false)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    mysavefig(plt, outdir, "triangle--best_fit_model_for_$(target)$(base ? "--base" : "")")
+    if !isdir("$outdir/triangle")
+        mkdir("$outdir/triangle")
+    end
+    mysavefig(plt, "$outdir/triangle", "best_fit_model_for_$(target)$option")
     return plt
 end
 
@@ -142,7 +160,10 @@ function export_target_triangle(target::String)
         font_size=20,
         legend=attr(; x=0.5, y=1.05, yanchor="bottom", xanchor="center", orientation="h"),
     )
-    mysavefig(plt, outdir, "triangle--target_$(target)")
+    if !isdir("$outdir/triangle")
+        mkdir("$outdir/triangle")
+    end
+    mysavefig(plt, "$outdir/triangle", "target_$(target)")
     return plt
 end
 
@@ -247,13 +268,6 @@ end
 
 function exec()
 
-    # export_best_fit_model_triangle("twitter")
-    # export_best_fit_model_triangle("aps")
-    # export_best_fit_model_triangle("twitter"; base=true)
-    # export_best_fit_model_triangle("aps"; base=true)
-    # export_target_triangle("twitter")
-    # export_target_triangle("aps")
-
     # export_best_fit_model_scatter("twitter")
     # export_best_fit_model_scatter("aps")
     # export_best_fit_model_scatter("twitter"; base=true)
@@ -263,6 +277,15 @@ function exec()
     export_target_polar("twitter")
     export_target_polar("aps")
 
+
+    export_best_fit_model_triangle("twitter")
+    export_best_fit_model_triangle("aps")
+    export_best_fit_model_triangle("twitter"; model="base")
+    export_best_fit_model_triangle("aps"; model="base")
+    export_best_fit_model_triangle("twitter"; model="pgbk")
+    export_best_fit_model_triangle("aps"; model="pgbk")
+    export_target_triangle("twitter")
+    export_target_triangle("aps")
     export_distances(["aps", "twitter"])
 end
 
