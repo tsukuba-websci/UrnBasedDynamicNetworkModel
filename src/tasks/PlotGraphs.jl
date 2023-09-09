@@ -188,29 +188,54 @@ function export_distances(targets::Vector{String})
         "aps" => "APS Co-authors Network", "twitter" => "Twitter Mentions Network"
     ])
 
-    pltdata::Vector{GenericTrace} = []
-    for target in targets
-        proposed = DataFrame(CSV.File("results/distances/$target.csv"))[1, target]
-        base = DataFrame(CSV.File("results/distances--base/$target.csv"))[1, target]
+    targets = ["aps", "twitter"]
 
-        push!(
-            pltdata,
-            bar(;
-                name=namedict[target],
-                x=["existing model", "proposed model"],
-                y=[base, proposed],
-            ),
-        )
+    x_values = []
+    y_values_base = []
+    y_values_proposed = []
+    y_values_pgbk = []
+
+    for target in targets
+        push!(x_values, namedict[target])
+        push!(y_values_base, DataFrame(CSV.File("results/distances--base/$target.csv"))[1, target])
+        push!(y_values_proposed, DataFrame(CSV.File("results/distances/$target.csv"))[1, target])
+        push!(y_values_pgbk, DataFrame(CSV.File("results/distances--pgbk/$target.csv"))[1, target])
     end
+
+    trace_base = bar(
+        x=x_values,
+        y=y_values_base,
+        name="existing model",
+        marker_color=colors["blue"],
+        showlegend=false
+    )
+
+    trace_proposed = bar(
+        x=x_values,
+        y=y_values_proposed,
+        name="proposed model",
+        marker_color=colors["red"],
+        showlegend=false
+    )
+
+    trace_pgbk = bar(
+        x=x_values,
+        y=y_values_pgbk,
+        name="pgbk model",
+        marker_color=colors["green"],
+        showlegend=false
+    )
+
+    pltdata = [trace_base, trace_pgbk, trace_proposed]
 
     layout = Layout(;
         template=templates[:simple_white],
         xaxis_title="",
         yaxis_title="Distance between the empirical",
-        yaxis_range=[0, 1.4],
         font_family="Times New Roman",
         font_size=20,
-        legend=attr(; x=1, y=1, xanchor="right"),
+        # legend=attr(; x=0, y=1, xanchor="top"),
+        legend=attr(visible=false),
     )
     plt = plot(pltdata, layout)
     mysavefig(plt, outdir, "distnace")
