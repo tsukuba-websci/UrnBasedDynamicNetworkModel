@@ -1,8 +1,8 @@
 # UrnBasedDynamicNetworkModel
 [日本語](README.md) | English
 
-## Abstruct
-This is the repository for the article "Simulating Emergence of Novelties Using Agent-Based Models", which was submitted to PLOSONE.
+## Abstract
+This is the repository for the article "Simulating Emergence of Novelties Using Agent-Based Models", which was submitted to PLOS ONE.
 
 ## Set Up
 ### Julia
@@ -18,7 +18,7 @@ julia> <]>
 ```
 
 ### Python
-Some analyses require Python environment.
+Some analysis requires a Python environment.
 
 ```sh
 # Install the required modules.

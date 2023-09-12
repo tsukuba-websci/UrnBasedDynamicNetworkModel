@@ -2,7 +2,7 @@
 日本語 | [English](README-en.md)
 
 ## 概要
-PLOSONEに投稿した論文"Simulating Emergence of Novelties Using Agent-Based Models"に関するリポジトリです。
+PLOS ONEに投稿した論文"Simulating Emergence of Novelties Using Agent-Based Models"に関するリポジトリです。
 
 ## セットアップ
 ### Julia
