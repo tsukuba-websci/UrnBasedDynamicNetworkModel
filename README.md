@@ -1,4 +1,6 @@
 # UrnBasedDynamicNetworkModel
+日本語 | [English](README-en.md)
+
 ## 概要
 PLOSONEに投稿した論文"Simulating Emergence of Novelties Using Agent-Based Models"に関するリポジトリです。
 
@@ -195,4 +197,4 @@ poetry run python python/triangle.py
 
 ## 備考
 論文再投稿の際に出力形式を変更したことで、整合性が取れなくなったため、論文の実験に関わらないスクリプトは削除しました。
-必要な場合はTag"v0.1.1"の時点のスクリプトを参照して下さい。
+必要な場合は[v0.1.1](https://github.com/tsukuba-websci/UrnBasedDynamicNetworkModel/releases/tag/v0.1.1)の時点のスクリプトを参照して下さい。
