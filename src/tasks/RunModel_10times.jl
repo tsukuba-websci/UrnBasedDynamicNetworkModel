@@ -4,6 +4,7 @@ using Dates
 using ArgParse
 
 include("../Models.jl")
+include("../Utils.jl")
 
 function main()
     main_dir = "results/generated_histories_10times/"
@@ -44,19 +45,10 @@ function exec(outdir::String)
                         env, labels, label_history = run_waves_model(
                             rho, nu, s, zeta, eta; steps=20000
                         )
-                        history_df = DataFrame(;
-                            step=1:length(env.history),
-                            src=first.(env.history),
-                            dst=last.(env.history),
-                        )
-
-                        env = nothing
                         labels = nothing
                         label_history = nothing
 
-                        CSV.write("$outdir/$filename--history.csv", history_df)
-
-                        history_df = nothing
+                        save_history(env, "$outdir/$filename--history.csv")
 
                         next!(p)
                     end
