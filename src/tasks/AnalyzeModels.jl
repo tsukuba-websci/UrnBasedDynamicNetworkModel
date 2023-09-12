@@ -9,9 +9,6 @@ include("../Calc.jl")
 indir = ""
 outfile = ""
 
-function params2str(p::ModelParams)
-    return params2str(p.rho, p.nu, p.zeta, p.eta)
-end
 
 function main()
     arg_parse = ArgParseSettings()
@@ -85,10 +82,10 @@ function exec(model::String)
             Threads.@threads for nu in nus
                 Threads.@threads for zeta in zetas
                     Threads.@threads for eta in etas
-                        params = ModelParams(rho, nu, zeta, eta)
-                        history_filepath = "$indir/$s/$(params2str(params))--history.csv"
+                        history_filepath = "$indir/$s/$(params2str(rho, nu, zeta, eta))--history.csv"
                         df = DataFrame(CSV.File(history_filepath))
                         history = Tuple.(zip(df.src, df.dst))
+                        params = ModelParams(rho, nu, zeta, eta)
                         mv = MeasuredValues(history, params)
 
                         lock(lk) do

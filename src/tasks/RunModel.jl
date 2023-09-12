@@ -41,12 +41,7 @@ function exec(outdir, rhos, nus, s, zetas, etas)
         Threads.@threads for nu in nus
             for zeta in zetas
                 for eta in etas
-                    rhostr = string(rho)
-                    nustr = string(nu)
-                    zetastr = replace(string(zeta), "." => "")
-                    etastr = replace(string(eta), "." => "")
-
-                    filename = "rho$(rhostr)_nu$(nustr)_zeta$(zetastr)_eta$(etastr)"
+                    filename = params2str(rho, nu, zeta, eta)
 
                     if (
                         isfile("$outdir/$filename--history.csv") &&

@@ -1,17 +1,11 @@
 using DataFrames
 
-function tostring(f::Number)
-    return replace(string(f), "." => "")
-end
-
 function params2str(rho::Int, nu::Int, zeta::Number, eta::Number)
-    if zeta == 0
-        zeta = convert(Int, zeta)
-    end
-    if eta == 0
-        eta = convert(Int, eta)
-    end
-    return "rho$(rho)_nu$(nu)_zeta$(tostring(zeta))_eta$(tostring(eta))"
+    rhostr = string(rho)
+    nustr = string(nu)
+    zetastr = replace(string(zeta), "." => "")
+    etastr = replace(string(eta), "." => "")
+    return "rho$(rhostr)_nu$(nustr)_zeta$(zetastr)_eta$(etastr)"
 end
 
 history_df2vec = df -> Tuple.(zip(df.src, df.dst))
