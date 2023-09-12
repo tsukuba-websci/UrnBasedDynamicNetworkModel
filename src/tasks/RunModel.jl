@@ -11,12 +11,8 @@ function main()
         throw(error("Please enter asw or wsw"))
     end
     s = ARGS[1]
-    exec(s)
-end
 
-function exec(s)
-    outdir = "results/generated_histories/$s"
-
+    outdir = "results/generated_histories__/$s"
     if isdir(outdir)
         ans = Base.prompt(
             "The generated histories have found. Do you want to overwrite? (y/N)";
@@ -27,7 +23,6 @@ function exec(s)
             return nothing
         end
     end
-
     rm(outdir; recursive=true, force=true)
     mkpath(outdir)
 
@@ -35,6 +30,11 @@ function exec(s)
     nus = 2:2:30 |> collect
     zetas = 0.2:0.2:1.0 |> collect
     etas = 0.2:0.2:1.0 |> collect
+
+    exec(outdir, rhos, nus, s, zetas, etas)
+end
+
+function exec(outdir, rhos, nus, s, zetas, etas)
 
     p = Progress(length(zetas) * length(etas) * length(rhos) * length(nus); showspeed=true)
     Threads.@threads for rho in rhos

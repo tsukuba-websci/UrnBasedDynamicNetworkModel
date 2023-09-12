@@ -6,7 +6,8 @@ using ArgParse
 include("../Models.jl")
 include("../Utils.jl")
 
-function exec()
+
+function main()
     outdir = "results/generated_histories--base"
 
     if isdir(outdir)
@@ -23,6 +24,11 @@ function exec()
     rm(outdir; recursive=true, force=true)
     mkpath(outdir)
 
+    exec(outdir)
+end
+
+
+function exec(outdir)
     rhos = 1:30 |> collect
     nus = 1:30 |> collect
     ss = ("asw", "wsw")
@@ -64,4 +70,4 @@ function exec()
     end
 end
 
-exec()
+main()
