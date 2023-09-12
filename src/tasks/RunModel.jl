@@ -4,6 +4,7 @@ using Dates
 using ArgParse
 
 include("../Models.jl")
+include("../Utils.jl")
 
 function main()
     if (length(ARGS) != 1 || !(ARGS[1] == "asw" || ARGS[1] == "wsw"))
@@ -59,25 +60,9 @@ function exec(s)
                     env, labels, label_history = run_waves_model(
                         rho, nu, s, zeta, eta; steps=20000
                     )
-                    history_df = DataFrame(;
-                        step=1:length(env.history),
-                        src=first.(env.history),
-                        dst=last.(env.history),
-                    )
-                    labels_df = DataFrame(; id=1:length(labels), label=labels)
-                    label_history_df = DataFrame(label_history)
-
-                    env = nothing
-                    labels = nothing
-                    label_history = nothing
-
-                    CSV.write("$outdir/$filename--history.csv", history_df)
-                    CSV.write("$outdir/$filename--labels.csv", labels_df)
-                    CSV.write("$outdir/$filename--label_history.csv", label_history_df)
-
-                    history_df = nothing
-                    labels_df = nothing
-                    label_history_df = nothing
+                    save_history(env, "$outdir/$filename--history.csv")
+                    save_labels(labels, "$outdir/$filename--labels.csv")
+                    save_label_history(label_history, "$outdir/$filename--label_history.csv")
 
                     next!(p)
                 end

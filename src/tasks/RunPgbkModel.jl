@@ -4,6 +4,7 @@ using Dates
 using ArgParse
 
 include("../Models.jl")
+include("../Utils.jl")
 
 function exec()
     outdir = "results/generated_histories--pgbk"
@@ -49,13 +50,7 @@ function exec()
                 end
 
                 env = run_pgbk_model(rho, nu, s; steps=20000)
-                history_df = DataFrame(;
-                    step=1:length(env.history), src=first.(env.history), dst=last.(env.history)
-                )
-                env = nothing
-
-                CSV.write("$outdir/$s/$filename--history.csv", history_df)
-                history_df = nothing
+                save_history(env, "$outdir/$s/$filename--history.csv")
 
                 next!(p)
             end
